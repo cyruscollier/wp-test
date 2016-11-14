@@ -1,0 +1,44 @@
+{
+    "name": "cyruscollier/wp-test",
+    "description": "A framework for running unit and integration tests on WordPress",
+    "keywords": ["wordpress", "test-driven development", "phpspec", "phpunit"],
+    "homepage": "http://github.com/cyruscollier/wp-spark",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Cyrus Collier",
+            "email": "web@cyruscollier.com",
+            "homepage": "http://www.collierwebdesign.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "phpspec/phpspec": "~2.1",
+        "cyruscollier/phpspec-php-mock": "dev-master",
+        "wordpress-dev": "4.5",
+        "phpunit/phpunit": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "WP-Test\\": "src/"
+        }
+    },
+    "repositories": [
+		{
+		    "type": "package",
+		    "package": {
+				"name": "wordpress-dev",
+				"version": "4.5",
+				"source" : {
+					"url"  : "git://develop.git.wordpress.org/",
+					"type" : "git",
+					"reference": "master"
+				}
+		    }
+		}
+    ],
+    "config": {
+        "secure-http": false
+    }
+    
+}

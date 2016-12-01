@@ -13,32 +13,15 @@
     ],
     "license": "MIT",
     "require": {
+        "cyruscollier/wordpress-develop": "4.6.x-dev",
         "phpspec/phpspec": "~2.1",
         "cyruscollier/phpspec-php-mock": "dev-master",
-        "wordpress-dev": "4.5",
         "phpunit/phpunit": "^5.5"
     },
     "autoload": {
         "psr-4": {
             "WP-Test\\": "src/"
         }
-    },
-    "repositories": [
-		{
-		    "type": "package",
-		    "package": {
-				"name": "wordpress-dev",
-				"version": "4.5",
-				"source" : {
-					"url"  : "git://develop.git.wordpress.org/",
-					"type" : "git",
-					"reference": "master"
-				}
-		    }
-		}
-    ],
-    "config": {
-        "secure-http": false
     }
     
 }

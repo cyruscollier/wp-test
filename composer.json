@@ -16,12 +16,13 @@
         "cyruscollier/wordpress-develop": "current-dev",
         "phpspec/phpspec": "~2.1",
         "cyruscollier/phpspec-php-mock": "dev-master",
-        "phpunit/phpunit": "^5.5"
+        "phpunit/phpunit": "^5.5",
+
     },
     "autoload": {
         "psr-4": {
-            "WP-Test\\": "src/"
+            "WPTest\\": "src/"
         }
-    }
-    
+    },
+    "bin": ["bin/wp-test"]
 }

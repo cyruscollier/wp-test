@@ -13,7 +13,7 @@
     ],
     "license": "MIT",
     "require": {
-        "cyruscollier/wordpress-develop": "current-dev",
+        "cyruscollier/wordpress-develop": "^4.7",
         "phpspec/phpspec": "~2.1",
         "cyruscollier/phpspec-php-mock": "^1.0.0",
         "phpunit/phpunit": "^5.5"

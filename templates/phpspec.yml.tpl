@@ -5,7 +5,7 @@ suites:
         spec_prefix: {spec_prefix}
         spec_path: {spec_path}
 
-bootstrap: {path_unit_tests}/bootstrap.php
+bootstrap: {path_wp_tests}/bootstrap/unit.php
 
 extensions:
     - PhpSpec\PhpMock\Extension\PhpMockExtension

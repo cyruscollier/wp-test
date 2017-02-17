@@ -68,7 +68,7 @@ class Util
     {
         $project_directory = $this->getProjectDirectory();
         if (is_dir($project_directory . '/wp-content')) {
-            return $project_directory . '/wp-content';
+            return 'wp-content';
         }
         return sprintf('%s/%s', $this->getWPDevelopDirectory(), 'src/wp-content');
     }

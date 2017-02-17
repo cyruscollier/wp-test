@@ -48,7 +48,7 @@ EOF
 
         $helper = $this->getHelper('question');
 
-        $question = new Question('Project namespace (PSR-4) [' . $default_namespace . ']: ', $default_namespace);
+        $question = new Question("Project namespace (PSR-4) [$default_namespace]: ", $default_namespace);
         $namespace = $helper->ask($input, $output, $question);
         $suite = $namespace ? strtolower($namespace) : 'main';
 
@@ -60,20 +60,32 @@ EOF
 
         $question = new Question('Path to integration tests, relative to project root [tests/integration]: ', 'tests/integration');
         $path_integration_tests = $helper->ask($input, $output, $question);
+
+        $default_wp_content = $Util->getWPContentDirectory();
+        $question = new Question("Path to wp-content directory, relative to project root [$default_wp_content]: ", $default_wp_content);
+        $path_wp_content = $helper->ask($input, $output, $question);
+
+        $default_active_theme = $Util->getWPActiveTheme();
+        $question = new Question("Active theme [$default_active_theme]: ", $default_active_theme);
+        $active_theme = $helper->ask($input, $output, $question);
+
         $path_wp_develop = $Util->getWPDevelopDirectory();
 
-        $template_dir = dirname(dirname(__DIR__)) . '/templates';
+        $wp_tests_dir = dirname(dirname(__DIR__));
+        $template_dir = $wp_tests_dir . '/templates';
+        $parts = explode($project_dir, $wp_tests_dir);
+        $path_wp_tests = ltrim(end($parts), '/');
 
         $phpspec_config = new \Text_Template("$template_dir/phpspec.yml.tpl");
-        $phpspec_config->setVar(compact('spec_path', 'spec_prefix', 'namespace', 'path_unit_tests', 'suite'));
+        $phpspec_config->setVar(compact('spec_path', 'spec_prefix', 'namespace', 'path_wp_tests', 'suite'));
         $phpspec_config->renderTo("$project_dir/phpspec.yml");
 
         $phpunit_config = new \Text_Template("$template_dir/phpunit.xml.tpl");
-        $phpunit_config->setVar(compact('path_integration_tests', 'path_wp_develop'));
+        $phpunit_config->setVar(compact('path_integration_tests', 'path_wp_tests', 'active_theme'));
         $phpunit_config->renderTo("$project_dir/phpunit.xml");
 
         $wp_tests_config = new \Text_Template("$template_dir/wp-tests-config.php.tpl");
-        $wp_tests_config->setVar(compact('path_wp_develop'));
+        $wp_tests_config->setVar(compact('path_wp_develop', 'path_wp_content'));
         $wp_tests_config->renderTo("$project_dir/wp-test-config.php");
 
         return 0;

@@ -3,6 +3,8 @@
 /* Path to the WordPress codebase you'd like to test. Add a forward slash in the end. */
 define( 'ABSPATH', dirname( __FILE__ ) . '/{path_wp_develop}/src/' );
 
+define( 'WP_CONTENT_DIR', dirname( __FILE__ ) . '/{path_wp_content}' );
+
 // Test with multisite enabled.
 // Alternatively, use the tests/phpunit/multisite.xml configuration file.
 // define( 'WP_TESTS_MULTISITE', true );

@@ -4,23 +4,15 @@ namespace WPTest\Test;
 
 class IntegrationBootstrap
 {
-
-    /**
-     * Relative paths for all active plugin main files
-     *
-     * @var array
-     */
-    protected $plugin_paths;
-
     public function load() {
         require_once WP_INCLUDE_PATH . '/functions.php';
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
-        tests_add_filter('muplugins_loaded', [$this, 'preloadActivePlugins']);
-        tests_add_filter('plugins_loaded', [$this, 'preloadActiveTheme']);
+        tests_add_filter('muplugins_loaded', [$this, 'setActivePlugins']);
+        tests_add_filter('plugins_loaded', [$this, 'setActiveTheme']);
         $GLOBALS['wp_tests_options'] = ['active_plugins' => [], 'stylesheet' => '', 'template' => ''];
     }
 
     public function setActivePlugins() {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
         $plugins = get_plugins();
         echo "Loading plugins:\n";
         foreach ($plugins as $name => $plugin_data) {

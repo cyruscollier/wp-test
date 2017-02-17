@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use WPTest\Util\Util;
 
 
 /**
@@ -15,8 +16,6 @@ use Symfony\Component\Console\Question\Question;
  */
 class InitCommand extends Command
 {
-    const PATH_WP_DEVELOP = 'cyruscollier/wordpress-develop';
-
     protected function configure()
     {
         $this->setName('init')
@@ -42,13 +41,10 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $project_dir = $this->getProjectDirectory();
+        $Util = new Util();
+        $project_dir = $Util->getProjectDirectory();
         $output->writeln($project_dir);
-        $composer_data = $project_dir ? json_decode(file_get_contents($project_dir . '/composer.json'), true) : [];
-        $default_namespace = isset($composer_data['autoload']['psr-4']) ?
-            str_replace('\\', '', key($composer_data['autoload']['psr-4'])) : '';
-        $vendor_dir = isset($composer_data['config']['vendor-dir']) ?
-            $composer_data['config']['vendor-dir'] : 'vendor';
+        $default_namespace = $Util->getPSR4Namespace();
 
         $helper = $this->getHelper('question');
 
@@ -64,7 +60,7 @@ EOF
 
         $question = new Question('Path to integration tests, relative to project root [tests/integration]: ', 'tests/integration');
         $path_integration_tests = $helper->ask($input, $output, $question);
-        $path_wp_develop = $vendor_dir . '/' . self::PATH_WP_DEVELOP;
+        $path_wp_develop = $Util->getWPDevelopDirectory();
 
         $template_dir = dirname(dirname(__DIR__)) . '/templates';
 
@@ -81,23 +77,5 @@ EOF
         $wp_tests_config->renderTo("$project_dir/wp-test-config.php");
 
         return 0;
-    }
-
-    protected function getProjectDirectory()
-    {
-        if (is_file(getcwd() . '/composer.json')) {
-            return getcwd();
-        }
-        $olddir = false;
-        $dir = __DIR__;
-        while ($dir != '/' && $dir != $olddir) {
-            $olddir = $dir;
-            $dir = dirname($dir);
-            if (is_file($dir . '/composer.json')) {
-                return $dir;
-            }
-
-        }
-        return false;
     }
 }

@@ -16,8 +16,7 @@
         "cyruscollier/wordpress-develop": "current-dev",
         "phpspec/phpspec": "~2.1",
         "cyruscollier/phpspec-php-mock": "^1.0.0",
-        "phpunit/phpunit": "^5.5",
-
+        "phpunit/phpunit": "^5.5"
     },
     "autoload": {
         "psr-4": {

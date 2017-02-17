@@ -64,4 +64,23 @@ class Util
         return sprintf('%s/%s', $this->getVendorDirectory(), static::PATH_WP_DEVELOP);
     }
 
+    public function getWPContentDirectory()
+    {
+        $project_directory = $this->getProjectDirectory();
+        if (is_dir($project_directory . '/wp-content')) {
+            return $project_directory . '/wp-content';
+        }
+        return sprintf('%s/%s', $this->getWPDevelopDirectory(), 'src/wp-content');
+    }
+
+    public function getWPActiveTheme()
+    {
+        $wp_content_directory = $this->getWPContentDirectory();
+        $files = scandir($wp_content_directory . '/themes');
+        $directories = array_filter($files, function($f) {
+           return false === strpos($f, '.');
+        });
+        return reset($directories);
+    }
+
 }

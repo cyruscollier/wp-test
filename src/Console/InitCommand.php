@@ -78,18 +78,19 @@ EOF
 
     protected function getProjectDirectory()
     {
-        if (is_file(getcwd() . '/vendor/autoload.php')) {
+        if (is_file(getcwd() . '/composer.json')) {
             return getcwd();
         }
-        if (is_file(getcwd() . '/../../../vendor/autoload.php')) {
-            return realpath(getcwd() . '/../../..');
+        $olddir = false;
+        $dir = __DIR__;
+        while ($dir != '/' && $dir != $olddir) {
+            $olddir = $dir;
+            $dir = dirname($dir);
+            if (is_file($dir . '/composer.json')) {
+                return $dir;
+            }
+
         }
-        if (is_file(__DIR__ . '/../vendor/autoload.php')) {
-            return realpath(__DIR__ . '/..');
-        }
-        if (is_file(__DIR__ . '/../../../../vendor/autoload.php')) {
-            return realpath(__DIR__ . '/../../../..');
-        }
-        return __DIR__;
+        return false;
     }
 }

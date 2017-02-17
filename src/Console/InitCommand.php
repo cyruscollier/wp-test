@@ -15,13 +15,13 @@ use Symfony\Component\Console\Question\Question;
  */
 class InitCommand extends Command
 {
-    const PATH_WP_DEVELOP = 'vendor/cyruscollier/wordpress-develop';
-    
+    const PATH_WP_DEVELOP = 'cyruscollier/wordpress-develop';
+
     protected function configure()
     {
         $this->setName('init')
-             ->setDescription('Initializes default config files in project root')
-             ->setHelp(<<<EOF
+            ->setDescription('Initializes default config files in project root')
+            ->setHelp(<<<EOF
 The <info>%command.name%</info> initializes default config files in project root:
 
   <info>php %command.full_name%</info>
@@ -31,7 +31,7 @@ Will setup and copy test environment config files into the project's root direct
 This command will not overwrite any existing config files; 
 to reset to the default files, you must delete the existing files first
 EOF
-              );
+            );
     }
 
     /**
@@ -42,9 +42,17 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $project_dir = $this->getProjectDirectory();
+        $output->writeln($project_dir);
+        $composer_data = $project_dir ? json_decode(file_get_contents($project_dir . '/composer.json'), true) : [];
+        $default_namespace = isset($composer_data['autoload']['psr-4']) ?
+            str_replace('\\', '', key($composer_data['autoload']['psr-4'])) : '';
+        $vendor_dir = isset($composer_data['config']['vendor-dir']) ?
+            $composer_data['config']['vendor-dir'] : 'vendor';
+
         $helper = $this->getHelper('question');
 
-        $question = new Question('Project namespace (PSR-4): ', '');
+        $question = new Question('Project namespace (PSR-4) [' . $default_namespace . ']: ', $default_namespace);
         $namespace = $helper->ask($input, $output, $question);
         $suite = $namespace ? strtolower($namespace) : 'main';
 
@@ -56,9 +64,8 @@ EOF
 
         $question = new Question('Path to integration tests, relative to project root [tests/integration]: ', 'tests/integration');
         $path_integration_tests = $helper->ask($input, $output, $question);
-        $path_wp_develop = self::PATH_WP_DEVELOP;
+        $path_wp_develop = $vendor_dir . '/' . self::PATH_WP_DEVELOP;
 
-        $project_dir = $this->getProjectDirectory();
         $template_dir = dirname(dirname(__DIR__)) . '/templates';
 
         $phpspec_config = new \Text_Template("$template_dir/phpspec.yml.tpl");

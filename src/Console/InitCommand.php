@@ -86,7 +86,7 @@ EOF
 
         $wp_tests_config = new \Text_Template("$template_dir/wp-tests-config.php.tpl");
         $wp_tests_config->setVar(compact('path_wp_develop', 'path_wp_content'));
-        $wp_tests_config->renderTo("$project_dir/wp-test-config.php");
+        $wp_tests_config->renderTo("$project_dir/wp-tests-config.php");
 
         return 0;
     }

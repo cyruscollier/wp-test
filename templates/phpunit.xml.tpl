@@ -12,7 +12,6 @@
     <php>
         <includePath>.</includePath>
         <const name="WP_RUN_CORE_TESTS" value="0" />
-        <const name="WP_CONFIG_FILE_PATH" value="wp-tests-config.php" />
         <const name="WP_TESTS_BOOTSTRAP_FILE" value="{path_wp_tests}/bootstrap/integration.php" />
         <const name="WP_TESTS_ACTIVE_THEME" value="{active_theme}" />
     </php>

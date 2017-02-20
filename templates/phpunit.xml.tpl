@@ -13,7 +13,9 @@
         <includePath>.</includePath>
         <const name="WP_RUN_CORE_TESTS" value="0" />
         <const name="WP_TESTS_BOOTSTRAP_FILE" value="{path_wp_tests}/bootstrap/integration.php" />
-        <const name="WP_TESTS_ACTIVE_THEME" value="{active_theme}" />
+        <const name="WP_TESTS_ACTIVATE_PLUGINS" value="1" />
+        <const name="WP_TESTS_ACTIVATE_THEME" value="{active_theme}" />
+        <server name="SERVER_SOFTWARE" value="apache" />
     </php>
     <testsuites>
         <testsuite>

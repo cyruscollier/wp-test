@@ -56,7 +56,7 @@ class Util
     {
         $composer_data = $this->getComposerData();
         return isset($composer_data['autoload']['psr-4']) ?
-            str_replace('\\', '', key($composer_data['autoload']['psr-4'])) : '';
+            trim(key($composer_data['autoload']['psr-4']), '\\') : '';
     }
 
     public function getWPDevelopDirectory()
@@ -75,12 +75,7 @@ class Util
 
     public function getWPActiveTheme()
     {
-        $wp_content_directory = $this->getWPContentDirectory();
-        $files = scandir($wp_content_directory . '/themes');
-        $directories = array_filter($files, function($f) {
-           return false === strpos($f, '.');
-        });
-        return reset($directories);
+        return $this->getWPContentDirectory() . '/themes/twentyseventeen';
     }
 
 }

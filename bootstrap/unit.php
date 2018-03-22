@@ -13,4 +13,6 @@ define('WP_CONTENT_DIR', $Util->getWPContentDirectory());
 
 require_once WP_PATH . '/src/wp-includes/class-wp-post.php';
 require_once WP_PATH . '/src/wp-includes/class-wp-post-type.php';
+require_once WP_PATH . '/src/wp-includes/class-wp-term.php';
+require_once WP_PATH . '/src/wp-includes/class-wp-taxonomy.php';
 require_once WP_PATH . '/src/wp-includes/class-wp-error.php';

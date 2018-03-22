@@ -1,7 +1,7 @@
 <?php
 
 /* Mocked WP functions used in domain objects */
-if (defined('PHPSPEC_VERSION')) {
+if (!defined('ABSPATH')) {
     function apply_filters($tag, $value) { return $value; }
     function do_action($tag) { }
     function get_the_excerpt($post) { return $post->post_excerpt; }

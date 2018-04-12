@@ -8,4 +8,4 @@ suites:
 bootstrap: {path_wp_tests}/bootstrap/unit.php
 
 extensions:
-    - PhpSpec\PhpMock\Extension\PhpMockExtension
+    PhpSpec\PhpMock\Extension\PhpMockExtension: ~

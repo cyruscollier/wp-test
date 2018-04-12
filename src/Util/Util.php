@@ -75,7 +75,7 @@ class Util
 
     public function getWPActiveTheme()
     {
-        return $this->getWPContentDirectory() . '/themes/twentyseventeen';
+        return 'twentyseventeen';
     }
 
 }

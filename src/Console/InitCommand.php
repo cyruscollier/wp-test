@@ -75,6 +75,9 @@ EOF
         $template_dir = $wp_tests_dir . '/templates';
         $parts = explode($project_dir, $wp_tests_dir);
         $path_wp_tests = ltrim(end($parts), '/');
+        if (empty($path_wp_tests)) {
+            $path_wp_tests = '.';
+        }
 
         $phpspec_config = new \Text_Template("$template_dir/phpspec.yml.tpl");
         $phpspec_config->setVar(compact('spec_path', 'spec_prefix', 'namespace', 'path_wp_tests', 'suite'));

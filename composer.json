@@ -12,8 +12,21 @@
         }
     ],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "version": "dev-external-testing",
+                "name": "cyruscollier/wordpress-develop",
+                "dist": {
+                    "url": "https://github.com/cyruscollier/wordpress-develop/archive/external-testing.zip",
+                    "type": "zip"
+                }
+            }
+        }
+    ],
     "require": {
-        "cyruscollier/wordpress-develop": "^4.9",
+        "cyruscollier/wordpress-develop": "dev-external-testing",
         "phpspec/phpspec": "~4.3",
         "cyruscollier/phpspec-php-mock": "^2.0.0",
         "phpunit/phpunit": "^6.5.7"

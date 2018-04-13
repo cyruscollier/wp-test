@@ -5,6 +5,7 @@ use WPTest\Util\Util;
 define('WP_TESTS_PATH', dirname(__DIR__));
 define('WP_TESTS_SRC_PATH', dirname(__DIR__) . '/src');
 
+require_once WP_TESTS_SRC_PATH . '/stubs.php';
 require_once WP_TESTS_SRC_PATH . '/Util/Util.php';
 $Util = new Util();
 

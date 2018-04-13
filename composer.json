@@ -21,8 +21,7 @@
     "autoload": {
         "psr-4": {
             "WPTest\\": "src/"
-        },
-        "files": ["src/stubs.php"]
+        }
     },
     "bin": ["bin/wp-test"]
 }

@@ -8,6 +8,3 @@ function maybe_unserialize($value) { return $value; }
 function maybe_serialize($value) { return $value; }
 function sanitize_title($title) { return $title; }
 function is_wp_error($thing) { return $thing instanceof WP_Error; }
-
-/* Stubbed WP classes */
-class WP_Widget {}

@@ -13,7 +13,7 @@ $Util = new Util();
 
 define('WP_PATH', $Util->getWPDevelopDirectory());
 define('WP_INCLUDE_PATH', WP_PATH . '/tests/phpunit/includes');
-define('WP_CONFIG_FILE_PATH', $Util->getProjectDirectory() . '/wp-tests-config.php');
+define('WP_TESTS_CONFIG_FILE_PATH', $Util->getProjectDirectory() . '/wp-tests-config.php');
 
 $bootstrap = new IntegrationBootstrap();
 $bootstrap->load();

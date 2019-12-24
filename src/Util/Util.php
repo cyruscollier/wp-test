@@ -4,7 +4,7 @@ namespace WPTest\Util;
 
 class Util
 {
-    const PATH_WP_DEVELOP = 'cyruscollier/wordpress-develop';
+    const PATH_WP_DEVELOP = 'wordpress/wordpress';
 
     protected $project_directory;
     protected $composer_data;

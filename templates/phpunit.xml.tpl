@@ -29,6 +29,10 @@
         <const name="WP_RUN_CORE_TESTS" value="0" />
         <const name="WP_TESTS_BOOTSTRAP_FILE" value="{path_wp_tests}/bootstrap/integration.php" />
         <const name="WP_TESTS_ACTIVE_THEME" value="{active_theme}" />
+        <const name="WP_TESTS_ACTIVATE_PLUGINS" value="0" />
+        <const name="WP_TESTS_INSTALL_PLUGINS" value="" />
+
+
     </php>
     <listeners>
         <listener class="SpeedTrapListener" file="vendor/wordpress/wordpress/tests/phpunit/includes/listener-loader.php">

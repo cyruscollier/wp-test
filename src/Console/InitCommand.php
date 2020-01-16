@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use WPTest\Util\Util;
 
@@ -49,6 +50,18 @@ EOF
 
         $helper = $this->getHelper('question');
 
+        $choices = [
+            '1' => 'Basic (default): Run WordPress application using PHPUnit.',
+            '2' => 'Advanced: Design domain layer using phpspec, de-coupled from WordPress dependency. Integration tests recommended for WordPress adapter layer.'
+        ];
+        $question = new ChoiceQuestion(
+            'Choose Unit Testing Architecture:',
+            $choices,
+            '1'
+        );
+        $question->setErrorMessage('Invalid Selection');
+        $advanced = $helper->ask($input, $output, $question);
+        $advanced = array_flip($choices)[$advanced] == '2';
         $question = new Question("Project namespace (PSR-4) [$default_namespace]: ", $default_namespace);
         $namespace = $helper->ask($input, $output, $question);
         $suite = $namespace ? strtolower($namespace) : 'main';
@@ -82,14 +95,23 @@ EOF
         if (empty($path_wp_tests)) {
             $path_wp_tests = '.';
         }
+        $unit_test_full_path = "$project_dir/$path_unit_tests";
+        if (!is_dir($unit_test_full_path)) {
+            mkdir($unit_test_full_path, 0777, true);
+        }
+        $integration_test_full_path = "$project_dir/$path_integration_tests";
+        if (!is_dir($integration_test_full_path)) {
+            mkdir($integration_test_full_path, 0777, true);
+        }
+        if ($advanced) {
+            $phpspec_config = new \Text_Template("$template_dir/phpspec.yml.tpl");
+            $phpspec_config->setVar(compact('unit_tests_path', 'source_path', 'unit_tests_prefix', 'namespace', 'path_wp_tests', 'suite'));
+            $phpspec_config->renderTo("$project_dir/phpspec.yml");
 
-        $phpspec_config = new \Text_Template("$template_dir/phpspec.yml.tpl");
-        $phpspec_config->setVar(compact('unit_tests_path', 'source_path', 'unit_tests_prefix', 'namespace', 'path_wp_tests', 'suite'));
-        $phpspec_config->renderTo("$project_dir/phpspec.yml");
-
-        $example_spec = new \Text_Template("$template_dir/ExampleSpec.php.tpl");
-        $example_spec->setVar(compact('namespace', 'unit_tests_prefix'));
-        $example_spec->renderTo("$project_dir/$path_unit_tests/ExampleSpec.php");
+            $example_spec = new \Text_Template("$template_dir/ExampleSpec.php.tpl");
+            $example_spec->setVar(compact('namespace', 'unit_tests_prefix'));
+            $example_spec->renderTo("$project_dir/$path_unit_tests/ExampleSpec.php");
+        }
 
         $phpunit_config = new \Text_Template("$template_dir/phpunit.xml.tpl");
         $phpunit_config->setVar(compact('path_unit_tests', 'path_integration_tests', 'path_wp_develop', 'path_wp_tests', 'active_theme'));
@@ -97,7 +119,10 @@ EOF
 
         $example_test = new \Text_Template("$template_dir/ExampleTest.php.tpl");
         $example_test->setVar(compact('namespace', 'unit_tests_prefix'));
-        $example_test->renderTo("$project_dir/$path_unit_tests/ExampleTest.php");
+        $example_test->renderTo("$project_dir/$path_integration_tests/ExampleTest.php");
+        if (!$advanced) {
+            $example_test->renderTo("$project_dir/$path_unit_tests/ExampleTest.php");
+        }
 
         $wp_tests_config = new \Text_Template("$template_dir/wp-tests-config.php.tpl");
         $wp_tests_config->setVar(compact('path_wp_develop', 'path_wp_content'));

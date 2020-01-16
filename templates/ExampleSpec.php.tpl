@@ -9,7 +9,7 @@ class ExampleSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldBe(true);
+        $this->shouldHaveType('{namespace}\\Example');
     }
 }
 

@@ -62,7 +62,7 @@ class Util
     {
         $composer_data = $this->getComposerData();
         return isset($composer_data['autoload']['psr-4']) ?
-            trim($composer_data['autoload']['psr-4'], '/') : '';
+            trim(reset($composer_data['autoload']['psr-4']), '/') : '';
     }
 
     public function getWPDevelopDirectory()

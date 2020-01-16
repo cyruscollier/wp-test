@@ -51,8 +51,8 @@ EOF
         $helper = $this->getHelper('question');
 
         $choices = [
-            '1' => 'Basic (default): Run WordPress application using PHPUnit.',
-            '2' => 'Advanced: Design domain layer using phpspec, de-coupled from WordPress dependency. Integration tests recommended for WordPress adapter layer.'
+            '1' => 'Basic (default): Run WordPress application using PHPUnit for unit and integration tests.',
+            '2' => 'Advanced TDD: Dependency-free unit tests using phpspec. Default setup for integration tests.'
         ];
         $question = new ChoiceQuestion(
             'Choose Unit Testing Architecture:',

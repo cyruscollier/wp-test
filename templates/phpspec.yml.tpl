@@ -2,10 +2,11 @@ suites:
     {suite}:
         namespace: {namespace}
         psr4_prefix: {namespace}
-        spec_prefix: {spec_prefix}
+        src_path: {source_path}
+        spec_prefix: {unit_tests_prefix}
         spec_path: {spec_path}
 
-bootstrap: {path_wp_tests}/bootstrap/unit.php
+bootstrap: {path_wp_tests}/bootstrap/phpspec.php
 
 extensions:
     PhpSpec\PhpMock\Extension\PhpMockExtension: ~

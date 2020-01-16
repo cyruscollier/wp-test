@@ -51,12 +51,18 @@ class Util
             $composer_data['config']['vendor-dir'] : 'vendor';
     }
 
-
     public function getPSR4Namespace()
     {
         $composer_data = $this->getComposerData();
         return isset($composer_data['autoload']['psr-4']) ?
             trim(key($composer_data['autoload']['psr-4']), '\\') : '';
+    }
+
+    public function getPSR4Source()
+    {
+        $composer_data = $this->getComposerData();
+        return isset($composer_data['autoload']['psr-4']) ?
+            trim($composer_data['autoload']['psr-4'], '/') : '';
     }
 
     public function getWPDevelopDirectory()
@@ -75,7 +81,7 @@ class Util
 
     public function getWPActiveTheme()
     {
-        return 'twentyseventeen';
+        return 'twentytwenty';
     }
 
 }

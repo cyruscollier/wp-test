@@ -2,7 +2,7 @@
 
 namespace WPTest\Test;
 
-class IntegrationBootstrap
+class PHPUnitBootstrap
 {
     public function load() {
         require_once WP_INCLUDE_PATH . '/functions.php';

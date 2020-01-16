@@ -28,15 +28,28 @@ v1.0.1 - New repo for WP Core, fix config paths and PHPUnit version to WP compat
 
 v1.0 - Initial version
 
-## Installation
+## Installation via Composer
 
-Download Composer package as a dev dependency to your WordPress project:
+Add dedicated repository to `composer.json` for WordPress Core
+
+```
+"repositories": [
+    {
+        "type": "composer",
+        "url": "https://packages.cyruscollier.com/"
+    }
+]
+```
+
+There is an [open WordPress Trac ticket](https://core.trac.wordpress.org/ticket/49077) to add WordPress Core to Packagist so the separate repository won't be required eventually.
+
+Download the Composer package as a dev dependency to your WordPress project:
 
 ```
 composer require cyruscollier/wp-test --dev
 ```
 
-Run the initialization console command. You may leave off the full path if your system `$PATH ` already includes your local composer bin directory
+Run the initialization console command. You may leave off the full path if your system `$PATH` already includes your local Composer bin directory
 
 ```
 ./vendor/bin/wp-test init
@@ -44,10 +57,54 @@ Run the initialization console command. You may leave off the full path if your 
 
 Follow the prompts in the console to configure your testing environment.
 
-##Configuration:
+1. Choose Unit Testing Architecture
+1. Project namespace (PSR-4)
+1. Source files path
+1. Path to unit tests, relative to project root
+1. Path to integration tests, relative to project root
+1. Path to wp-content directory, relative to project root
+1. Active theme
 
-*Choose Unit Testing Architecture:*
+##Installing a localhost MySQL database
 
-1. Basic (default): Run WordPress application using PHPUnit for unit and integration tests.     
-1. Advanced TDD: Dependency-free unit tests using phpspec. Default setup for integration tests.
+Required for the PHPUnit/WordPress Core setup. 
+The easiest installation process if you using a Mac is via Homebrew:
 
+```
+brew update
+brew install mysql@5.7
+brew link mysql@5.7 --force
+brew services start mysql@5.7
+mysql -uroot
+
+   mysql> CREATE DATABASE IF NOT EXISTS wordpress_develop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+```
+
+A VM (vagrant, etc.) or Docker mysql server can also be used, 
+but either the server must be setup to accept requests from any host using the configured user over an open port (like 3306),
+or all test run commands must be run directly in that environment instead of the host machine's terminal.
+
+##Usage
+
+In your project root, run PHPUnit:
+
+```
+./vendor/bin/phpunit
+```
+
+For integration tests:
+
+```
+./vendor/bin/phpunit --testsuite integration
+```
+
+Full PHPUnit documentation: [https://phpunit.readthedocs.io/en/7.5/]
+
+If using Advanced TDD Mode, run phpspec:
+
+```
+./vendor/bin/phpspec run
+```
+
+Full phpspec documentation: [https://www.phpspec.net/en/stable/manual/introduction.html]

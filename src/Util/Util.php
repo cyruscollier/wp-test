@@ -5,6 +5,7 @@ namespace WPTest\Util;
 class Util
 {
     const PATH_WP_DEVELOP = 'wordpress/wordpress';
+    const DEFAULT_THEME = 'twentytwenty';
 
     protected $project_directory;
     protected $composer_data;
@@ -53,16 +54,12 @@ class Util
 
     public function getPSR4Namespace()
     {
-        $composer_data = $this->getComposerData();
-        return isset($composer_data['autoload']['psr-4']) ?
-            trim(key($composer_data['autoload']['psr-4']), '\\') : '';
+        return trim($this->getAutoloadKey(), '\\');
     }
 
     public function getPSR4Source()
     {
-        $composer_data = $this->getComposerData();
-        return isset($composer_data['autoload']['psr-4']) ?
-            trim(reset($composer_data['autoload']['psr-4']), '/') : '';
+        return trim($this->getAutoloadPath(), '/');
     }
 
     public function getWPDevelopDirectory()
@@ -81,7 +78,20 @@ class Util
 
     public function getWPActiveTheme()
     {
-        return 'twentytwenty';
+        return preg_match('@/themes/(.*?)/.*?@', $this->getAutoloadPath(), $matches) ?
+            $matches[1] : static::DEFAULT_THEME;
+    }
+
+    protected function getAutoloadKey()
+    {
+        $composer_data = $this->getComposerData();
+        return isset($composer_data['autoload']['psr-4']) ? key($composer_data['autoload']['psr-4']) : '';
+    }
+
+    protected function getAutoloadPath()
+    {
+        $composer_data = $this->getComposerData();
+        return isset($composer_data['autoload']['psr-4']) ? reset($composer_data['autoload']['psr-4']) : '';
     }
 
 }

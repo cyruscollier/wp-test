@@ -75,10 +75,7 @@ brew update
 brew install mysql@5.7
 brew link mysql@5.7 --force
 brew services start mysql@5.7
-mysql -uroot
-
-   mysql> CREATE DATABASE IF NOT EXISTS wordpress_develop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
+mysql -uroot -e "CREATE DATABASE IF NOT EXISTS wordpress_develop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
 A VM (vagrant, etc.) or Docker mysql server can also be used, 

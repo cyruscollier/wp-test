@@ -20,7 +20,7 @@ class PHPUnitBootstrap
             tests_add_filter('plugins_loaded', [$this, 'installSelectedPlugins'], 99);
         }
         if (defined('WP_TESTS_ACTIVATE_THEME') && WP_TESTS_ACTIVATE_THEME) {
-            $this->options['stylesheet'] = $this->options['template'] = [];
+            $this->options['stylesheet'] = $this->options['template'] = WP_TESTS_ACTIVATE_THEME;
             tests_add_filter('plugins_loaded', [$this, 'setActiveTheme']);
         }
     }
@@ -51,8 +51,6 @@ class PHPUnitBootstrap
         $themes = wp_get_themes();
         echo "Loading theme:\n";
         $theme = $themes[WP_TESTS_ACTIVATE_THEME];
-        $this->options['stylesheet'] = $theme->stylesheet;
-        $this->options['template'] = $theme->template;
         echo "--{$theme->name} {$theme->version}\n";
     }
 }

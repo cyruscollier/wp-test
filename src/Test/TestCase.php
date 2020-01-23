@@ -2,6 +2,9 @@
 
 namespace WPTest\Test;
 
+use DOMDocument;
+use PHPUnit\Framework\Exception;
+
 class TestCase extends \WP_UnitTestCase {
 
     /**
@@ -48,11 +51,7 @@ class TestCase extends \WP_UnitTestCase {
      */
     public function assertHTMLEquals($expectedHTML, $actualHTML, string $message = ''): void
     {
-
-        $expected = sprintf('<xml-root>%s</xml-root>', trim($expectedHTML));
-        $actual = sprintf('<xml-root>%s</xml-root>', trim($actualHTML));
-
-        $this->assertXmlStringEqualsXmlString($expected, $actual, $message);
+        $this->assertEquals($this->createHTMLDocument($expectedHTML), $this->createHTMLDocument($actualHTML), $message);
     }
 
     public function get_object_url( $object ) {
@@ -78,6 +77,36 @@ class TestCase extends \WP_UnitTestCase {
 
     public function go_to_object_url( $object ) {
         $this->go_to( $this->get_object_link( $object ) );
+    }
+
+    protected function createHTMLDocument($html)
+    {
+        $document = new DOMDocument;
+        $document->preserveWhiteSpace = false;
+
+        $internal  = \libxml_use_internal_errors(true);
+        $message   = '';
+        $reporting = \error_reporting(0);
+
+        $loaded = $document->loadHTML($html, LIBXML_NOBLANKS);
+
+        foreach (\libxml_get_errors() as $error) {
+            $message .= "\n" . $error->message;
+        }
+
+        \libxml_use_internal_errors($internal);
+        \error_reporting($reporting);
+
+        if ($loaded === false) {
+
+            if ($message === '') {
+                $message = 'Could not load XML for unknown reason';
+            }
+
+            throw new Exception($message);
+        }
+
+        return $document;
     }
 
 }

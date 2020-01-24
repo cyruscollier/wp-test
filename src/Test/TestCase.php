@@ -13,12 +13,12 @@ class TestCase extends \WP_UnitTestCase {
      * @param mixed $call either function name or object instance
      * @param string $method_name
      */
-    public static function assertHasFilter( $hook, $call, $method_name = null ) {
+    public function assertHasFilter( $hook, $call, $method_name = null ) {
 
         self::assertThat( $hook, new HasFilterConstraint( $call, $method_name ) );
     }
 
-    public static function assertHasAction( $hook, $call, $method_name = null ) {
+    public function assertHasAction( $hook, $call, $method_name = null ) {
 
         self::assertHasFilter( $hook, $call, $method_name );
     }
@@ -28,7 +28,7 @@ class TestCase extends \WP_UnitTestCase {
      * @param string $hook
      * @param int $count
      */
-    public static function assertDidAction( $hook, $count = 1 ) {
+    public function assertDidAction( $hook, $count = 1 ) {
 
         self::assertThat( $hook, new DidActionConstraint( $count ) );
     }
@@ -37,7 +37,7 @@ class TestCase extends \WP_UnitTestCase {
      *
      * @param string $hook
      */
-    public static function assertDidNotDoAction( $hook ) {
+    public function assertDidNotDoAction( $hook ) {
 
         self::assertDidAction( $hook, 0 );
     }
@@ -76,7 +76,7 @@ class TestCase extends \WP_UnitTestCase {
     }
 
     public function go_to_object_url( $object ) {
-        $this->go_to( $this->get_object_link( $object ) );
+        $this->go_to( $this->get_object_url( $object ) );
     }
 
     protected function createHTMLDocument($html)

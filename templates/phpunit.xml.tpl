@@ -32,7 +32,7 @@
         <const name="WP_TESTS_ACTIVATE_THEME" value="{active_theme}" />
         <const name="WP_TESTS_ACTIVATE_PLUGINS" value="0" />
         <const name="WP_TESTS_INSTALL_PLUGINS" value="" />
-
+        <const name="WP_TESTS_CONFIG_FILE_PATH" value="./wp-tests-config.php" />
 
     </php>
     <listeners>

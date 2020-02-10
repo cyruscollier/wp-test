@@ -29,7 +29,6 @@
     <php>
         <includePath>.</includePath>
         <const name="WP_RUN_CORE_TESTS" value="0" />
-        <const name="WP_TESTS_BOOTSTRAP_FILE" value="{path_wp_tests}/bootstrap/phpunit.php" />
         <const name="WP_TESTS_ACTIVATE_THEME" value="{active_theme}" />
         <const name="WP_TESTS_ACTIVATE_PLUGINS" value="0" />
         <const name="WP_TESTS_INSTALL_PLUGINS" value="" />

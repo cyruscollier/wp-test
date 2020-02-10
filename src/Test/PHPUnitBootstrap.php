@@ -2,27 +2,45 @@
 
 namespace WPTest\Test;
 
+use WPTest\Util\Util;
+
 class PHPUnitBootstrap
 {
     protected $install_plugins = [];
     protected $options;
+    protected $util;
+    protected $wp_include_path;
 
     public function __construct()
     {
         $this->options =& $GLOBALS['wp_tests_options'];
+        $this->util = new Util();
+        $this->wp_include_path = $this->util->getWPDevelopDirectory() . '/tests/phpunit/includes';
+        require_once $this->wp_include_path . '/functions.php';
+    }
+
+    public function beforePluginsLoaded(callable $callable, $priority = 10)
+    {
+        tests_add_filter('muplugins_loaded', $callable, $priority);
+    }
+
+    public function afterPluginsLoaded(callable $callable, $priority = 10)
+    {
+        tests_add_filter('plugins_loaded', $callable, $priority);
     }
 
     public function load() {
-        require_once WP_INCLUDE_PATH . '/functions.php';
+
         if (defined('WP_TESTS_ACTIVATE_PLUGINS') && WP_TESTS_ACTIVATE_PLUGINS) {
             $this->options['active_plugins'] = [];
-            tests_add_filter('muplugins_loaded', [$this, 'setActivePlugins']);
-            tests_add_filter('plugins_loaded', [$this, 'installSelectedPlugins'], 99);
+            $this->beforePluginsLoaded([$this, 'setActivePlugins']);
+            $this->afterPluginsLoaded([$this, 'installSelectedPlugins'], 99);
         }
         if (defined('WP_TESTS_ACTIVATE_THEME') && WP_TESTS_ACTIVATE_THEME) {
             $this->options['stylesheet'] = $this->options['template'] = WP_TESTS_ACTIVATE_THEME;
-            tests_add_filter('plugins_loaded', [$this, 'setActiveTheme']);
+            $this->afterPluginsLoaded([$this, 'setActiveTheme']);
         }
+        require_once $this->wp_include_path . '/bootstrap.php';
     }
 
     public function setActivePlugins() {
@@ -43,7 +61,10 @@ class PHPUnitBootstrap
     public function installSelectedPlugins()
     {
         foreach ($this->install_plugins as $plugin) {
-            do_action('activate_' . $plugin);
+            $network_wide = is_multisite() ;
+            do_action('activate_plugin', $plugin, $network_wide);
+            do_action('activate_' . $plugin, $network_wide);
+            do_action('activated_plugin', $plugin, $network_wide);
         }
     }
 

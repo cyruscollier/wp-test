@@ -65,7 +65,7 @@ Follow the prompts in the console to configure your testing environment.
 1. Path to wp-content directory, relative to project root
 1. Active theme
 
-##Installing a localhost MySQL database
+## Installing a localhost MySQL database
 
 Required for the PHPUnit/WordPress Core setup. 
 The easiest installation process if you using a Mac is via Homebrew:
@@ -82,7 +82,7 @@ A VM (vagrant, etc.) or Docker mysql server can also be used,
 but either the server must be setup to accept requests from any host using the configured user over an open port (like 3306),
 or all test run commands must be run directly in that environment instead of the host machine's terminal.
 
-##Usage
+## Usage
 
 In your project root, run PHPUnit:
 

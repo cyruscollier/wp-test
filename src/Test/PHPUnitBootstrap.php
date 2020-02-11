@@ -4,19 +4,21 @@ namespace WPTest\Test;
 
 use WPTest\Util\Util;
 
-class PHPUnitBootstrap
+class PHPUnitBootstrap extends TestRunnerBootstrap
 {
     protected $install_plugins = [];
     protected $options;
-    protected $util;
-    protected $wp_include_path;
 
     public function __construct()
     {
+        parent::__construct();
         $this->options =& $GLOBALS['wp_tests_options'];
-        $this->util = new Util();
-        $this->wp_include_path = $this->util->getWPDevelopDirectory() . '/tests/phpunit/includes';
-        require_once $this->wp_include_path . '/functions.php';
+        $this->require('functions.php');
+    }
+
+    protected function getIncludePath()
+    {
+        return $this->util->getWPDevelopDirectory() . '/tests/phpunit/includes';
     }
 
     public function beforePluginsLoaded(callable $callable, $priority = 10)
@@ -40,11 +42,10 @@ class PHPUnitBootstrap
             $this->options['stylesheet'] = $this->options['template'] = WP_TESTS_ACTIVATE_THEME;
             $this->afterPluginsLoaded([$this, 'setActiveTheme']);
         }
-        require_once $this->wp_include_path . '/bootstrap.php';
+        $this->require('bootstrap.php');
     }
 
     public function setActivePlugins() {
-        global $wp_tests_options;
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
         $plugins = get_plugins();
         echo "Loading plugins:\n";

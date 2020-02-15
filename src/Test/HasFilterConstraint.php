@@ -2,7 +2,9 @@
 
 namespace WPTest\Test;
 
-class HasFilterConstraint extends \PHPUnit_Framework_Constraint
+use PHPUnit\Framework\Constraint\Constraint;
+
+class HasFilterConstraint extends Constraint
 {
     
     /**
@@ -11,25 +13,27 @@ class HasFilterConstraint extends \PHPUnit_Framework_Constraint
     protected $callable;
 
     /**
-     * @param numeric $value
+     * HasFilterConstraint constructor.
+     *
+     * @param string|callable $call
+     * @param string $method_name
      */
-    public function __construct( $call, $method_name = null)
+    public function __construct($call, $method_name = null)
     {
         parent::__construct();
-        if ( empty( $call ) ) throw new \PHPUnit_Framework_Exception( 'Not hook provided for filter assertion' );
-        $this->callable = is_null($method_name) ? $call : array( $call, $method_name );
+        if (empty($call)) {
+            throw new \PHPUnit_Framework_Exception( 'Not hook provided for filter assertion' );
+        }
+        $this->callable = is_null($method_name) ? $call : [$call, $method_name];
     }
 
     /**
-     * Evaluates the constraint for parameter $other. Returns true if the
-     * constraint is met, false otherwise.
-     *
-     * @param  mixed $other Value or object to evaluate.
+     * @param  string $hook Hook name
      * @return bool
      */
-    protected function matches($hook)
+    protected function matches($hook): bool
     {
-        return false !== has_filter( $hook, $this->callable );
+        return false !== has_filter($hook, $this->callable);
     }
 
     /**
@@ -37,13 +41,19 @@ class HasFilterConstraint extends \PHPUnit_Framework_Constraint
      *
      * @return string
      */
-    public function toString()
+    public function toString(): string
     {
-        $filter = is_array( $this->callable ) ? sprintf( '%s::%s', get_class( $this->callable[0] ), $this->callable[1] ) : $this->callable;
+        $filter = is_array($this->callable) ?
+            sprintf('%s::%s', get_class( $this->callable[0]), $this->callable[1] ) :
+            $this->callable;
         return $this->exporter->export($filter);
     }
-    
-    protected function failureDescription($hook)
+
+    /**
+     * @param string $hook
+     * @return string
+     */
+    protected function failureDescription($hook): string
     {
         return "hook '$hook' has filter/action " . $this->toString();
     }

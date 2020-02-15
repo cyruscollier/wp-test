@@ -2,111 +2,12 @@
 
 namespace WPTest\Test;
 
-use DOMDocument;
-use PHPUnit\Framework\Exception;
+use WPTest\Test\Traits;
 
 class TestCase extends \WP_UnitTestCase {
 
-    /**
-     *
-     * @param string $hook
-     * @param mixed $call either function name or object instance
-     * @param string $method_name
-     */
-    public function assertHasFilter( $hook, $call, $method_name = null ) {
-
-        self::assertThat( $hook, new HasFilterConstraint( $call, $method_name ) );
-    }
-
-    public function assertHasAction( $hook, $call, $method_name = null ) {
-
-        self::assertHasFilter( $hook, $call, $method_name );
-    }
-
-    /**
-     *
-     * @param string $hook
-     * @param int $count
-     */
-    public function assertDidAction( $hook, $count = 1 ) {
-
-        self::assertThat( $hook, new DidActionConstraint( $count ) );
-    }
-
-    /**
-     *
-     * @param string $hook
-     */
-    public function assertDidNotDoAction( $hook ) {
-
-        self::assertDidAction( $hook, 0 );
-    }
-
-    /**
-     * Asserts that two HTML strings are equal.
-     *
-     * @param string $expectedHTML
-     * @param string $actualHTML
-     * @param string $message
-     */
-    public function assertHTMLEquals($expectedHTML, $actualHTML, string $message = ''): void
-    {
-        $this->assertEquals($this->createHTMLDocument($expectedHTML), $this->createHTMLDocument($actualHTML), $message);
-    }
-
-    public function get_object_url( $object ) {
-        if ( !empty( $object->user_login ) )
-            return get_author_posts_url( $object->ID );
-        if ( !empty( $object->term_id ) )
-            return get_term_link( $object->term_id, $object->taxonomy );
-        return get_permalink( $object->ID );
-    }
-
-    public function go_to( $url ) {
-        if ( false === strpos( $url, 'http' ) ) {
-            $url = sprintf( 'http://%s/%s', WP_TESTS_DOMAIN, ltrim( $url, '/' ) );
-        }
-        parent::go_to( $url );
-    }
-
-    public function go_to_search( $query = [] ) {
-        $query = array_merge( ['s' => ''], $query );
-        $url = '?' . http_build_query( $query );
-        $this->go_to( $url );
-    }
-
-    public function go_to_object_url( $object ) {
-        $this->go_to( $this->get_object_url( $object ) );
-    }
-
-    protected function createHTMLDocument($html)
-    {
-        $document = new DOMDocument;
-        $document->preserveWhiteSpace = false;
-
-        $internal  = \libxml_use_internal_errors(true);
-        $message   = '';
-        $reporting = \error_reporting(0);
-
-        $loaded = $document->loadHTML($html, LIBXML_NOBLANKS);
-
-        foreach (\libxml_get_errors() as $error) {
-            $message .= "\n" . $error->message;
-        }
-
-        \libxml_use_internal_errors($internal);
-        \error_reporting($reporting);
-
-        if ($loaded === false) {
-
-            if ($message === '') {
-                $message = 'Could not load XML for unknown reason';
-            }
-
-            throw new Exception($message);
-        }
-
-        return $document;
-    }
+    use Traits\UrlUtilsTrait;
+    use Traits\AssertsFilters;
+    use Traits\AssertsHtml;
 
 }

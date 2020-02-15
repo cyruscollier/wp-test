@@ -2,7 +2,9 @@
 
 namespace WPTest\Test;
 
-class DidActionConstraint extends \PHPUnit_Framework_Constraint
+use PHPUnit\Framework\Constraint\Constraint;
+
+class DidActionConstraint extends Constraint
 {
 
     /**
@@ -11,25 +13,24 @@ class DidActionConstraint extends \PHPUnit_Framework_Constraint
     protected $count;
 
     /**
-     * @param numeric $value
+     * DidActionConstraint constructor.
+     *
+     * @param int $count
      */
-    public function __construct( $count = 1 )
+    public function __construct($count = 1)
     {
         parent::__construct();
         $this->count = $count;
     }
 
     /**
-     * Evaluates the constraint for parameter $other. Returns true if the
-     * constraint is met, false otherwise.
-     *
-     * @param  mixed $other Value or object to evaluate.
+     * @param  string $hook Hook name
      * @return bool
      */
-    protected function matches($hook)
+    protected function matches($hook): bool
     {
         
-        return $this->count == did_action( $hook );
+        return $this->count == did_action($hook);
     }
 
     /**
@@ -37,14 +38,20 @@ class DidActionConstraint extends \PHPUnit_Framework_Constraint
      *
      * @return string
      */
-    public function toString()
+    public function toString(): string
     {
         $output = $this->exporter->export($this->count) . ' time';
-        if ( $this->count > 1 ) $output .= 's';
+        if ($this->count > 1) {
+            $output .= 's';
+        }
         return $output;
     }
 
-    protected function failureDescription($hook)
+    /**
+     * @param string $hook
+     * @return string
+     */
+    protected function failureDescription($hook): string
     {
         return "action '$hook' has been fired " . $this->toString();
     }

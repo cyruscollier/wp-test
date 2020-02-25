@@ -23,11 +23,10 @@ trait AssertsHtml
     {
         $document = new DOMDocument;
         $document->preserveWhiteSpace = false;
-
         $internal  = \libxml_use_internal_errors(true);
         $message   = '';
         $reporting = \error_reporting(0);
-
+        $html = str_replace(["\n", "\t", "\r"], ['', '', ''], $html);
         $loaded = $document->loadHTML($html, LIBXML_NOBLANKS);
 
         foreach (\libxml_get_errors() as $error) {

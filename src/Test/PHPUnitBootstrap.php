@@ -8,12 +8,14 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
 {
     protected $install_plugins = [];
     protected $options;
+    protected $is_integration_group;
 
     public function __construct()
     {
         parent::__construct();
         $this->options =& $GLOBALS['wp_tests_options'];
         $this->require('functions.php');
+        $this->is_integration_group = in_array('integration', getopt('',['group::']));
     }
 
     protected function getIncludePath()
@@ -41,6 +43,16 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
         if (defined('WP_TESTS_ACTIVATE_THEME') && WP_TESTS_ACTIVATE_THEME) {
             $this->options['stylesheet'] = $this->options['template'] = WP_TESTS_ACTIVATE_THEME;
             $this->afterPluginsLoaded([$this, 'setActiveTheme']);
+        }
+        if (defined('WP_TESTS_STUB_EXTERNAL_HTTP') && WP_TESTS_STUB_EXTERNAL_HTTP) {
+            tests_add_filter('pre_http_request', function($pre, $parsed_args, $url) {
+                if ($this->is_integration_group && did_action('init')) {
+                    return $pre;
+                }
+                $response = ['code' => 200];
+                $body = '';
+                return compact('parsed_args', 'url', 'response', 'body');
+            }, 10, 3);
         }
         $this->require('bootstrap.php');
     }

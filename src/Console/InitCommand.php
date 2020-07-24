@@ -69,14 +69,21 @@ EOF
         $question = new Question("Source files path [$default_src]: ", $default_src);
         $source_path = $helper->ask($input, $output, $question);
 
-        $question = new Question('Path to unit tests, relative to project root [tests/unit]: ', 'tests/unit');
+        $tests_path = dirname($source_path) . '/tests';
+        $default_unit_path = $tests_path . '/' . ($advanced ? 'unit' : 'phpunit');
+        $question = new Question("Path to unit tests [$default_unit_path]: ", $default_unit_path);
         $path_unit_tests = $helper->ask($input, $output, $question);
+
+        if ($advanced) {
+            $default_integration_path = $tests_path . '/integration';
+            $question = new Question("Path to integration tests [$default_integration_path]: ", $default_integration_path);
+            $path_integration_tests = $helper->ask($input, $output, $question);
+        }
+        $phpunit_path = $advanced ? $path_integration_tests : $path_unit_tests;
+        $phpunit_bootstrap_path = dirname($phpunit_path);
         $path_parts = explode(DIRECTORY_SEPARATOR, $path_unit_tests);
         $unit_tests_path = $path_parts[0];
         $unit_tests_prefix = isset($path_parts[1]) ? $path_parts[1] : '';
-
-        $question = new Question('Path to integration tests, relative to project root [tests/integration]: ', 'tests/integration');
-        $path_integration_tests = $helper->ask($input, $output, $question);
 
         $default_wp_content = $Util->getWPContentDirectory();
         $question = new Question("Path to wp-content directory, relative to project root [$default_wp_content]: ", $default_wp_content);
@@ -99,11 +106,12 @@ EOF
         if (!is_dir($unit_test_full_path)) {
             mkdir($unit_test_full_path, 0777, true);
         }
-        $integration_test_full_path = "$project_dir/$path_integration_tests";
-        if (!is_dir($integration_test_full_path)) {
-            mkdir($integration_test_full_path, 0777, true);
-        }
         if ($advanced) {
+            $integration_test_full_path = "$project_dir/$path_integration_tests";
+            if (!is_dir($integration_test_full_path)) {
+                mkdir($integration_test_full_path, 0777, true);
+            }
+
             $phpspec_config = new \Text_Template("$template_dir/phpspec.yml.tpl");
             $phpspec_config->setVar(compact('unit_tests_path', 'source_path', 'unit_tests_prefix', 'namespace', 'path_wp_tests', 'suite'));
             $phpspec_config->renderTo("$project_dir/phpspec.yml");
@@ -114,15 +122,15 @@ EOF
         }
 
         $phpunit_config = new \Text_Template("$template_dir/phpunit.xml.tpl");
-        $phpunit_config->setVar(compact('path_unit_tests', 'path_integration_tests', 'path_wp_develop', 'path_wp_tests', 'active_theme'));
+        $phpunit_config->setVar(compact('path_unit_tests', 'path_wp_develop', 'path_wp_tests', 'active_theme', 'phpunit_bootstrap_path'));
         $phpunit_config->renderTo("$project_dir/phpunit.xml");
+        
+        $phpunit_bootstrap = new \Text_Template("$template_dir/phpunit.php.tpl");
+        $phpunit_bootstrap->renderTo("$project_dir/$phpunit_bootstrap_path/phpunit.php");
 
         $example_test = new \Text_Template("$template_dir/ExampleTest.php.tpl");
         $example_test->setVar(compact('namespace', 'unit_tests_prefix'));
-        $example_test->renderTo("$project_dir/$path_integration_tests/ExampleTest.php");
-        if (!$advanced) {
-            $example_test->renderTo("$project_dir/$path_unit_tests/ExampleTest.php");
-        }
+        $example_test->renderTo("$project_dir/$phpunit_path/ExampleTest.php");
 
         $wp_tests_config = new \Text_Template("$template_dir/wp-tests-config.php.tpl");
         $wp_tests_config->setVar(compact('path_wp_develop', 'path_wp_content'));

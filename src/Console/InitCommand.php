@@ -136,6 +136,11 @@ EOF
         $wp_tests_config->setVar(compact('path_wp_develop', 'path_wp_content'));
         $wp_tests_config->renderTo("$project_dir/wp-tests-config.php");
 
+        if ($advanced) {
+            $output->writeln('Next, install phpspec and the function mocking extension:');
+            $output->writeln('> composer require phpspec/phpspec cyruscollier/phpspec-php-mock --dev');
+        }
+
 
         return 0;
     }

@@ -128,6 +128,11 @@ EOF
         $phpunit_bootstrap = new \Text_Template("$template_dir/phpunit.php.tpl");
         $phpunit_bootstrap->renderTo("$project_dir/$phpunit_bootstrap_path/phpunit.php");
 
+        $vendor_path = $Util->getVendorDirectory();
+        $phpunit_watcher_config = new \Text_Template("$template_dir/phpunit-watcher.yml.tpl");
+        $phpunit_watcher_config->setVar(compact('path_unit_tests', 'source_path', 'vendor_path'));
+        $phpunit_watcher_config->renderTo("$project_dir/phpunit-watcher.yml");
+
         $example_test = new \Text_Template("$template_dir/ExampleTest.php.tpl");
         $example_test->setVar(compact('namespace', 'unit_tests_prefix'));
         $example_test->renderTo("$project_dir/$phpunit_path/ExampleTest.php");

@@ -56,6 +56,7 @@ EOF
             $path_unit_tests = $suite['spec_path'] . DIRECTORY_SEPARATOR . $suite['spec_prefix'];
             $this->deleteFile("$project_dir/$path_unit_tests/ExampleSpec.php", $output);
             $this->deleteFile($phpspec_config_file, $output);
+            @rmdir("$project_dir/$path_unit_tests");
         }
         $phpunit_config_file = "$project_dir/phpunit.xml";
         if (file_exists($phpunit_config_file)) {
@@ -65,6 +66,8 @@ EOF
             $this->deleteFile("$project_dir/$phpunit_path/ExampleTest.php", $output);
             $this->deleteFile("$project_dir/$phpunit_bootstrap_path/phpunit.php", $output);
             $this->deleteFile($phpunit_config_file, $output);
+            @rmdir("$project_dir/$phpunit_path");
+            @rmdir("$project_dir/$phpunit_bootstrap_path");
         }
 
         $this->deleteFile("$project_dir/phpunit-watcher.yml", $output);
@@ -73,6 +76,10 @@ EOF
         return 0;
     }
 
+    /**
+     * @param string $name
+     * @param OutputInterface $output
+     */
     protected function deleteFile(string $name, OutputInterface $output)
     {
         if (!file_exists($name)) {

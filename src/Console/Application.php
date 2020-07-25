@@ -13,5 +13,6 @@ class Application extends BaseApplication
     {
         parent::__construct('wp-test', $version);
         $this->add(new InitCommand());
+        $this->add(new ResetCommand());
     }
 }

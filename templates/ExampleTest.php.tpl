@@ -1,6 +1,6 @@
 <?php
 
-namespace {unit_tests_prefix}\{namespace};
+namespace {unit_tests_prefix}{namespace_relative};
 
 use WPTest\Test\TestCase;
 

@@ -59,7 +59,7 @@ class Util
 
     public function getPSR4Source()
     {
-        return trim($this->getAutoloadPath(), '/');
+        return trim($this->getAutoloadPath(), '/') ?: 'src';
     }
 
     public function getWPDevelopDirectory()

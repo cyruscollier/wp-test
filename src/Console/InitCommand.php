@@ -4,8 +4,6 @@ namespace WPTest\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
@@ -17,6 +15,28 @@ use WPTest\Util\Util;
  */
 class InitCommand extends Command
 {
+    protected $Util;
+    protected $project_dir;
+    protected $wp_tests_dir;
+    protected $templates_dir;
+    protected $path_wp_tests;
+    protected $vendor_path;
+    protected $path_wp_develop;
+    protected $unit_tests_prefix = 'Test';
+
+    public function __construct(string $name = null)
+    {
+        parent::__construct($name);
+        $this->Util = new Util();
+        $this->project_dir = $this->Util->getProjectDirectory();
+        $this->wp_tests_dir = dirname(dirname(__DIR__));
+        $this->templates_dir = $this->wp_tests_dir . '/templates';
+        $parts = explode($this->project_dir, $this->wp_tests_dir);
+        $this->path_wp_tests = ltrim(end($parts), '/') ?: '.';
+        $this->vendor_path = $this->Util->getVendorDirectory();
+        $this->path_wp_develop = $this->Util->getWPDevelopDirectory();
+    }
+
     protected function configure()
     {
         $this->setName('init')
@@ -28,8 +48,7 @@ The <info>%command.name%</info> initializes default config files in project root
 
 Will setup and copy test environment config files into the project's root directory.
 
-This command will not overwrite any existing config files; 
-to reset to the default files, you must delete the existing files first
+This command WILL overwrite any existing config files.
 EOF
             );
     }
@@ -38,15 +57,13 @@ EOF
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
-     * @return mixed
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $Util = new Util();
-        $project_dir = $Util->getProjectDirectory();
-        $output->writeln($project_dir);
-        $default_namespace = $Util->getPSR4Namespace();
-        $default_src = $Util->getPSR4Source();
+        $output->writeln($this->project_dir);
+        $default_namespace = $this->Util->getPSR4Namespace();
+        $default_src = $this->Util->getPSR4Source();
 
         $helper = $this->getHelper('question');
 
@@ -64,15 +81,17 @@ EOF
         $advanced = array_flip($choices)[$advanced] == '2';
         $question = new Question("Project namespace (PSR-4) [$default_namespace]: ", $default_namespace);
         $namespace = $helper->ask($input, $output, $question);
+        $namespace_relative = $namespace ? '\\' . $namespace : '';
         $suite = $namespace ? strtolower($namespace) : 'main';
 
         $question = new Question("Source files path [$default_src]: ", $default_src);
         $source_path = $helper->ask($input, $output, $question);
 
-        $tests_path = dirname($source_path) . '/tests';
+        $tests_path = ltrim(dirname($source_path) . '/tests', './');
         $default_unit_path = $tests_path . '/' . ($advanced ? 'unit' : 'phpunit');
         $question = new Question("Path to unit tests [$default_unit_path]: ", $default_unit_path);
         $path_unit_tests = $helper->ask($input, $output, $question);
+        $path_integration_tests = '';
 
         if ($advanced) {
             $default_integration_path = $tests_path . '/integration';
@@ -81,72 +100,70 @@ EOF
         }
         $phpunit_path = $advanced ? $path_integration_tests : $path_unit_tests;
         $phpunit_bootstrap_path = dirname($phpunit_path);
-        $path_parts = explode(DIRECTORY_SEPARATOR, $path_unit_tests);
-        $unit_tests_path = $path_parts[0];
-        $unit_tests_prefix = isset($path_parts[1]) ? $path_parts[1] : '';
 
-        $default_wp_content = $Util->getWPContentDirectory();
+        $default_wp_content = $this->Util->getWPContentDirectory();
         $question = new Question("Path to wp-content directory, relative to project root [$default_wp_content]: ", $default_wp_content);
         $path_wp_content = $helper->ask($input, $output, $question);
 
-        $default_active_theme = $Util->getWPActiveTheme();
+        $default_active_theme = $this->Util->getWPActiveTheme();
         $question = new Question("Active theme [$default_active_theme]: ", $default_active_theme);
         $active_theme = $helper->ask($input, $output, $question);
 
-        $path_wp_develop = $Util->getWPDevelopDirectory();
-
-        $wp_tests_dir = dirname(dirname(__DIR__));
-        $template_dir = $wp_tests_dir . '/templates';
-        $parts = explode($project_dir, $wp_tests_dir);
-        $path_wp_tests = ltrim(end($parts), '/');
-        if (empty($path_wp_tests)) {
-            $path_wp_tests = '.';
-        }
-        $unit_test_full_path = "$project_dir/$path_unit_tests";
-        if (!is_dir($unit_test_full_path)) {
-            mkdir($unit_test_full_path, 0777, true);
-        }
+        $this->makeDirectory("$this->project_dir/$path_unit_tests");
+        $output->writeln('Generating files:');
         if ($advanced) {
-            $integration_test_full_path = "$project_dir/$path_integration_tests";
-            if (!is_dir($integration_test_full_path)) {
-                mkdir($integration_test_full_path, 0777, true);
-            }
-
-            $phpspec_config = new \Text_Template("$template_dir/phpspec.yml.tpl");
-            $phpspec_config->setVar(compact('unit_tests_path', 'source_path', 'unit_tests_prefix', 'namespace', 'path_wp_tests', 'suite'));
-            $phpspec_config->renderTo("$project_dir/phpspec.yml");
-
-            $example_spec = new \Text_Template("$template_dir/ExampleSpec.php.tpl");
-            $example_spec->setVar(compact('namespace', 'unit_tests_prefix'));
-            $example_spec->renderTo("$project_dir/$path_unit_tests/ExampleSpec.php");
+            $this->makeDirectory("$this->project_dir/$path_integration_tests");
+            $this->generateFile("$this->project_dir/phpspec.yml", $output, compact(
+                'path_unit_tests', 'source_path', 'namespace', 'suite'
+            ));
+            $this->generateFile("$this->project_dir/$path_unit_tests/ExampleSpec.php", $output, compact(
+                'namespace', 'namespace_relative'
+            ));
         }
 
-        $phpunit_config = new \Text_Template("$template_dir/phpunit.xml.tpl");
-        $phpunit_config->setVar(compact('path_unit_tests', 'path_wp_develop', 'path_wp_tests', 'active_theme', 'phpunit_bootstrap_path'));
-        $phpunit_config->renderTo("$project_dir/phpunit.xml");
-        
-        $phpunit_bootstrap = new \Text_Template("$template_dir/phpunit.php.tpl");
-        $phpunit_bootstrap->renderTo("$project_dir/$phpunit_bootstrap_path/phpunit.php");
+        $this->generateFile("$this->project_dir/phpunit.xml", $output, compact(
+            'path_unit_tests', 'active_theme', 'phpunit_bootstrap_path'
+        ));
+        $this->generateFile("$this->project_dir/$phpunit_bootstrap_path/phpunit.php", $output);
 
-        $vendor_path = $Util->getVendorDirectory();
-        $phpunit_watcher_config = new \Text_Template("$template_dir/phpunit-watcher.yml.tpl");
-        $phpunit_watcher_config->setVar(compact('path_unit_tests', 'source_path', 'vendor_path'));
-        $phpunit_watcher_config->renderTo("$project_dir/phpunit-watcher.yml");
+        $this->generateFile("$this->project_dir/phpunit-watcher.yml", $output, compact(
+            'path_unit_tests', 'source_path'
+        ));
+        $this->generateFile("$this->project_dir/$phpunit_path/ExampleTest.php", $output, compact('namespace_relative'));
+        $this->generateFile("$this->project_dir/wp-tests-config.php", $output, compact('path_wp_content'));
 
-        $example_test = new \Text_Template("$template_dir/ExampleTest.php.tpl");
-        $example_test->setVar(compact('namespace', 'unit_tests_prefix'));
-        $example_test->renderTo("$project_dir/$phpunit_path/ExampleTest.php");
-
-        $wp_tests_config = new \Text_Template("$template_dir/wp-tests-config.php.tpl");
-        $wp_tests_config->setVar(compact('path_wp_develop', 'path_wp_content'));
-        $wp_tests_config->renderTo("$project_dir/wp-tests-config.php");
-
+        $output->writeln('');
         if ($advanced) {
             $output->writeln('Next, install phpspec and the function mocking extension:');
             $output->writeln('> composer require phpspec/phpspec cyruscollier/phpspec-php-mock --dev');
         }
 
-
         return 0;
+    }
+
+    /**
+     * @param string $name
+     * @param OutputInterface $output
+     * @param array $vars
+     */
+    protected function generateFile(string $name, OutputInterface $output, array $vars = [])
+    {
+        $template_file = $this->templates_dir . DIRECTORY_SEPARATOR . basename($name) . '.tpl';
+        $template = new \Text_Template($template_file);
+        $template_vars = get_object_vars($this);
+        unset($template_vars['Util']);
+        $template->setVar(array_merge($template_vars, $vars));
+        $template->renderTo($name);
+        $output->writeln($name);
+    }
+
+    /**
+     * @param string $name
+     */
+    protected function makeDirectory(string $name)
+    {
+        if (!is_dir($name)) {
+            mkdir($name, 0777, true);
+        }
     }
 }

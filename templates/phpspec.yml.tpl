@@ -3,8 +3,8 @@ suites:
         namespace: {namespace}
         psr4_prefix: {namespace}
         src_path: {source_path}
-        spec_prefix: {unit_tests_prefix}
-        spec_path: {path_unit_tests}
+        spec_prefix: {spec_prefix}
+        spec_path: {spec_path}
 
 bootstrap: {path_wp_tests}/bootstrap/phpspec.php
 

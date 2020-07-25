@@ -1,6 +1,6 @@
 <?php
 
-namespace {unit_tests_prefix}{namespace_relative};
+namespace {spec_prefix}{namespace_relative};
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;

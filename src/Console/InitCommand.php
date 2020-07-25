@@ -64,22 +64,25 @@ EOF
         $output->writeln($this->project_dir);
         $default_namespace = $this->Util->getPSR4Namespace();
         $default_src = $this->Util->getPSR4Source();
-
         $helper = $this->getHelper('question');
 
         $choices = [
             '1' => 'Basic (default): Run WordPress application using PHPUnit for unit and integration tests.',
             '2' => 'Advanced TDD: Dependency-free unit tests using phpspec. Default setup for integration tests.'
         ];
-        $question = new ChoiceQuestion(
-            'Choose Unit Testing Architecture:',
-            $choices,
-            '1'
-        );
+        $question = new ChoiceQuestion('Choose Unit Testing Architecture:', $choices, '1');
         $question->setErrorMessage('Invalid Selection');
         $advanced = $helper->ask($input, $output, $question);
         $advanced = array_flip($choices)[$advanced] == '2';
         $question = new Question("Project namespace (PSR-4) [$default_namespace]: ", $default_namespace);
+        if ($advanced) {
+            $question->setValidator(function ($value) {
+                if (trim($value) == '') {
+                    throw new \Exception('Advanced TDD architecture requires a namespace.');
+                }
+                return $value;
+            });
+        }
         $namespace = $helper->ask($input, $output, $question);
         $namespace_relative = $namespace ? '\\' . $namespace : '';
         $suite = $namespace ? strtolower($namespace) : 'main';
@@ -113,16 +116,17 @@ EOF
         $output->writeln('Generating files:');
         if ($advanced) {
             $this->makeDirectory("$this->project_dir/$path_integration_tests");
+            list($spec_path, $spec_prefix) = explode(DIRECTORY_SEPARATOR, $path_unit_tests);
             $this->generateFile("$this->project_dir/phpspec.yml", $output, compact(
-                'path_unit_tests', 'source_path', 'namespace', 'suite'
+                'spec_path', 'spec_prefix', 'source_path', 'namespace', 'suite'
             ));
             $this->generateFile("$this->project_dir/$path_unit_tests/ExampleSpec.php", $output, compact(
-                'namespace', 'namespace_relative'
+                'spec_prefix', 'namespace', 'namespace_relative'
             ));
         }
 
         $this->generateFile("$this->project_dir/phpunit.xml", $output, compact(
-            'path_unit_tests', 'active_theme', 'phpunit_bootstrap_path'
+            'phpunit_path', 'active_theme', 'phpunit_bootstrap_path'
         ));
         $this->generateFile("$this->project_dir/$phpunit_bootstrap_path/phpunit.php", $output);
 

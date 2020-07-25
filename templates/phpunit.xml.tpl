@@ -12,7 +12,7 @@
 >
     <testsuites>
         <testsuite name="default">
-            <directory suffix=".php">./{path_unit_tests}</directory>
+            <directory suffix=".php">{phpunit_path}</directory>
         </testsuite>
     </testsuites>
     <groups>
@@ -27,7 +27,7 @@
         <const name="WP_TESTS_ACTIVATE_THEME" value="{active_theme}" />
         <const name="WP_TESTS_ACTIVATE_PLUGINS" value="1" />
         <const name="WP_TESTS_INSTALL_PLUGINS" value="" />
-        <const name="WP_TESTS_CONFIG_FILE_PATH" value="./wp-tests-config.php" />
+        <const name="WP_TESTS_CONFIG_FILE_PATH" value="wp-tests-config.php" />
         <const name="WP_TESTS_STUB_EXTERNAL_HTTP" value="1" />
     </php>
     <listeners>

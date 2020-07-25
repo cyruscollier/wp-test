@@ -50,15 +50,17 @@ EOF
         $phpspec_config_file = "$project_dir/phpspec.yml";
 
         if (file_exists($phpspec_config_file)) {
-            $phpspec_config = Yaml::parse($phpspec_config_file);
-            $path_unit_tests = reset($phpspec_config['suites'])['spec_path'];
+            $phpspec_config = Yaml::parseFile($phpspec_config_file);
+            $suites = (array) $phpspec_config['suites'];
+            $suite = reset($suites);
+            $path_unit_tests = $suite['spec_path'] . DIRECTORY_SEPARATOR . $suite['spec_prefix'];
             $this->deleteFile("$project_dir/$path_unit_tests/ExampleSpec.php", $output);
             $this->deleteFile($phpspec_config_file, $output);
         }
         $phpunit_config_file = "$project_dir/phpunit.xml";
         if (file_exists($phpunit_config_file)) {
             $phpunit_config = simplexml_load_file($phpunit_config_file);
-            $phpunit_path = ltrim($phpunit_config->xpath('//testsuite[@name=\'default\']/directory')[0], './');
+            $phpunit_path = (string) $phpunit_config->xpath('//testsuite[@name=\'default\']/directory')[0];
             $phpunit_bootstrap_path = dirname($phpunit_config->xpath('/phpunit')[0]['bootstrap']);
             $this->deleteFile("$project_dir/$phpunit_path/ExampleTest.php", $output);
             $this->deleteFile("$project_dir/$phpunit_bootstrap_path/phpunit.php", $output);

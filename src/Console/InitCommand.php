@@ -137,7 +137,6 @@ EOF
         $this->generateFile("$this->project_dir/$phpunit_path/ExampleTest.php", $output, compact('namespace_relative'));
         $this->generateFile("$this->project_dir/wp-tests-config.php", $output, compact('path_wp_content'));
 
-        $output->writeln('');
         $output->writeln('Installing additional dependencies:');
         if ($advanced) {
             $output->write(`composer require phpspec/phpspec fetzi/phpspec-watcher cyruscollier/phpspec-php-mock --dev`);

@@ -48,8 +48,9 @@ EOF
         }
         $output->writeln('Deleting files:');
         $phpspec_config_file = "$project_dir/phpspec.yml";
-
+        $advanced = false;
         if (file_exists($phpspec_config_file)) {
+            $advanced = true;
             $phpspec_config = Yaml::parseFile($phpspec_config_file);
             $suites = (array) $phpspec_config['suites'];
             $suite = reset($suites);
@@ -73,6 +74,13 @@ EOF
         $this->deleteFile("$project_dir/phpunit-watcher.yml", $output);
         $this->deleteFile("$project_dir/.phpspec-watcher.yml", $output);
         $this->deleteFile("$project_dir/wp-tests-config.php", $output);
+
+        $output->writeln('Removing additional dependencies:');
+        if ($advanced) {
+            $output->write(`composer remove phpspec/phpspec fetzi/phpspec-watcher cyruscollier/phpspec-php-mock --dev`);
+        } else {
+            $output->write(`composer remove spatie/phpunit-watcher --dev`);
+        }
 
         return 0;
     }

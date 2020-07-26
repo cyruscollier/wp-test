@@ -9,7 +9,6 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Yaml\Yaml;
 use WPTest\Util\Util;
 
-
 /**
  * Resets all generated setup and example files
  */

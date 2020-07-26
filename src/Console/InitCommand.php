@@ -9,7 +9,6 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use WPTest\Util\Util;
 
-
 /**
  * Main command, initializes default config files in project root
  */
@@ -22,7 +21,6 @@ class InitCommand extends Command
     protected $path_wp_tests;
     protected $vendor_path;
     protected $path_wp_develop;
-    protected $unit_tests_prefix = 'Test';
 
     public function __construct(string $name = null)
     {

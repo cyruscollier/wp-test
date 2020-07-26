@@ -4,8 +4,8 @@ watch:
         - {path_unit_tests}
     fileMask: '*.php'
 notifications:
-    passingTests: false
-    failingTests: false
+    passingTests: true
+    failingTests: true
 phpunit:
     binaryPath: {vendor_path}/bin/phpunit
     arguments: '--stop-on-failure'

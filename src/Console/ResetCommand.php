@@ -71,6 +71,7 @@ EOF
         }
 
         $this->deleteFile("$project_dir/phpunit-watcher.yml", $output);
+        $this->deleteFile("$project_dir/.phpspec-watcher.yml", $output);
         $this->deleteFile("$project_dir/wp-tests-config.php", $output);
 
         return 0;

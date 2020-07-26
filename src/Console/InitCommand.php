@@ -2,6 +2,7 @@
 
 namespace WPTest\Console;
 
+use ParagonIE\Sodium\Core\Curve25519\Ge\P1p1;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -130,16 +131,19 @@ EOF
         ));
         $this->generateFile("$this->project_dir/$phpunit_bootstrap_path/phpunit.php", $output);
 
-        $this->generateFile("$this->project_dir/phpunit-watcher.yml", $output, compact(
+        $watcher = $advanced ? '.phpspec-watcher' : 'phpunit-watcher';
+        $this->generateFile("$this->project_dir/$watcher.yml", $output, compact(
             'path_unit_tests', 'source_path'
         ));
         $this->generateFile("$this->project_dir/$phpunit_path/ExampleTest.php", $output, compact('namespace_relative'));
         $this->generateFile("$this->project_dir/wp-tests-config.php", $output, compact('path_wp_content'));
 
         $output->writeln('');
+        $output->writeln('Installing additional dependencies:');
         if ($advanced) {
-            $output->writeln('Next, install phpspec and the function mocking extension:');
-            $output->writeln('> composer require phpspec/phpspec cyruscollier/phpspec-php-mock --dev');
+            $output->write(`composer require phpspec/phpspec fetzi/phpspec-watcher cyruscollier/phpspec-php-mock --dev`);
+        } else {
+            $output->write(`composer require spatie/phpunit-watcher --dev`);
         }
 
         return 0;

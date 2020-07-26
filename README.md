@@ -20,7 +20,7 @@ It allows you to initialize an automated test suite on any new or existing WordP
 
 ## Changelog
 
-v1.1.1 - Setup improvements and fixes, added `wp-test reset` command, internal refactoring, updated readme.
+v1.2 - Setup improvements and fixes, added `wp-test reset` command, internal refactoring, updated readme.
 
 v1.1 - Revised `wp-test init` command to allow choice to use phpspec or not for unit tests. Improvements and fixes to config templates. Added phpunit-watcher. Added readme. 
 
@@ -111,7 +111,7 @@ If using Advanced TDD Mode, run phpspec:
 or run the watcher to re-run tests whenever any of your code changes:
 
 ```
-./vendor/bin/phpspec watch
+./vendor/bin/phpspec-watcher watch
 ```
 
 

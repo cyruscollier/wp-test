@@ -2,7 +2,6 @@
 
 namespace WPTest\Console;
 
-use ParagonIE\Sodium\Core\Curve25519\Ge\P1p1;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

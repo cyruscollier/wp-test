@@ -7,15 +7,15 @@ It allows you to initialize an automated test suite on any new or existing WordP
 
 * Uses the same [PHPUnit](https://github.com/sebastianbergmann/phpunit) based framework that powers the [WordPress Core](https://github.com/wordpress/wordpress) test suite
 * CLI command to create and customize config files inside your project required by the Core test suite
-* Subclass of `WP_UnitTestCase` with added convenience methods and custom assertions for testing actions and filters
-* Enhanced PHPUnit bootstrap process to automatically activate your project's theme and plugins
-* Use for unit testing your code and for integration tests with external services (Stripe, Facebook, etc.)
+* [Subclass of `WP_UnitTestCase`](https://github.com/cyruscollier/wp-test/blob/master/src/Test/TestCase.php) with additional convenience methods and custom assertions
+* [Enhanced PHPUnit bootstrap process](https://github.com/cyruscollier/wp-test/blob/master/src/Test/PHPUnitBootstrap.php) to automatically activate your project's theme and plugins
+* In addition to unit testing your code, there is a separate test group for integration tests with external services (Stripe, Facebook, etc.)
 
 ## Advanced TDD mode
-* Uses [phpspec](https://github.com/phpspec/phpspec) for design and unit test a dependency-free domain model
-* Uses Basic setup above to drive integration tests only, treating WordPress itself as an external dependency
-* Includes bare minimum of WP classes into phpspec to facilitate common spec use cases without running WordPress
-* Includes stubs for most common WP functions
+* Uses [phpspec](https://github.com/phpspec/phpspec) for designing and unit testing a dependency-free domain model
+* Uses Basic setup above to drive integration tests only, treating WordPress itself as an external dependency in specs
+* [Includes bare minimum of WP classes](https://github.com/cyruscollier/wp-test/blob/master/src/Test/PHPSpecBootstrap.php) into phpspec to facilitate common spec use cases without running WordPress
+* [Includes stubs for most common WP functions](https://github.com/cyruscollier/wp-test/blob/master/src/stubs.php)
 * Uses [PhpSpec - PHP-Mock](http://github.com/cyruscollier/phpspec-php-mock) to mock other WP function on demand in specs
 
 ## Installation via Composer
@@ -76,7 +76,7 @@ In your project root, run PHPUnit:
 ./vendor/bin/phpunit
 ```
 
-or run the watcher to re-run tests whenever any of your code changes:
+or [run the watcher](https://github.com/spatie/phpunit-watcher) to re-run tests whenever any of your code changes:
 
 ```
 ./vendor/bin/phpunit-watcher watch
@@ -96,7 +96,7 @@ If using Advanced TDD Mode, run phpspec:
 ./vendor/bin/phpspec run
 ```
 
-or run the watcher to re-run tests whenever any of your code changes:
+or [run the watcher](https://github.com/fetzi/phpspec-watcher) to re-run tests whenever any of your code changes:
 
 ```
 ./vendor/bin/phpspec-watcher watch

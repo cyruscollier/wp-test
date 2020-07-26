@@ -120,6 +120,7 @@ EOF
             $this->generateFile("$this->project_dir/phpspec.yml", $output, compact(
                 'spec_path', 'spec_prefix', 'source_path', 'namespace', 'suite'
             ));
+            $this->generateFile("$this->project_dir/$spec_path/phpspec.php", $output);
             $this->generateFile("$this->project_dir/$path_unit_tests/ExampleSpec.php", $output, compact(
                 'spec_prefix', 'namespace', 'namespace_relative'
             ));

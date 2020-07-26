@@ -7,14 +7,7 @@ class PHPSpecBootstrap extends TestRunnerBootstrap
     public function __construct()
     {
         parent::__construct();
-        $src_path = dirname(__DIR__);
-        require_once $src_path . '/stubs.php';
-        require_once $src_path . '/Util/Util.php';
-    }
-
-    protected function getIncludePath()
-    {
-        return $this->util->getWPDevelopDirectory() . '/src/wp-includes';
+        require_once dirname(__DIR__) . '/stubs.php';
     }
 
     public function load()

@@ -2,25 +2,25 @@
 
 namespace WPTest\Test;
 
-use WPTest\Util\Util;
-
 class PHPUnitBootstrap extends TestRunnerBootstrap
 {
     protected $install_plugins = [];
     protected $options;
     protected $is_integration_group;
+    protected $wp_tests_includes_path;
 
     public function __construct()
     {
         parent::__construct();
+        $this->wp_tests_includes_path = $this->util->getWPDevelopDirectory() . '/tests/phpunit/includes';
         $this->options =& $GLOBALS['wp_tests_options'];
-        $this->require('functions.php');
+        $this->requireTestsIncludes('functions.php');
         $this->is_integration_group = in_array('integration', getopt('',['group::']));
     }
 
-    protected function getIncludePath()
+    public function requireTestsIncludes($filename)
     {
-        return $this->util->getWPDevelopDirectory() . '/tests/phpunit/includes';
+        require_once $this->wp_tests_includes_path . DIRECTORY_SEPARATOR. $filename;
     }
 
     public function beforePluginsLoaded(callable $callable, $priority = 10)
@@ -54,11 +54,11 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
                 return compact('parsed_args', 'url', 'response', 'body');
             }, 10, 3);
         }
-        $this->require('bootstrap.php');
+        $this->requireTestsIncludes('bootstrap.php');
     }
 
     public function setActivePlugins() {
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        $this->requireAdmin('includes/plugin.php');
         $plugins = get_plugins();
         echo "Loading plugins:\n";
         $plugins_to_activate = defined('WP_TESTS_INSTALL_PLUGINS') ? explode(',', WP_TESTS_INSTALL_PLUGINS) : [];

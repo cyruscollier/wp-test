@@ -18,18 +18,6 @@ It allows you to initialize an automated test suite on any new or existing WordP
 * Includes stubs for most common WP functions
 * Uses [PhpSpec - PHP-Mock](http://github.com/cyruscollier/phpspec-php-mock) to mock other WP function on demand in specs
 
-## Changelog
-
-v1.2 - Setup improvements and fixes, added `wp-test reset` command, internal refactoring, updated readme.
-
-v1.1 - Revised `wp-test init` command to allow choice to use phpspec or not for unit tests. Improvements and fixes to config templates. Added phpunit-watcher. Added readme. 
-
-v1.0.2 - Fix phpunit.xml template to align with WP Core
-
-v1.0.1 - New repo for WP Core, fix config paths and PHPUnit version to WP compatibility
-
-v1.0 - Initial version
-
 ## Installation via Composer
 
 Add the dedicated package repository for WordPress Core<sup>[[1]](#footnote-1)</sup> and download the Composer package as a dev dependency to your WordPress project:
@@ -114,8 +102,19 @@ or run the watcher to re-run tests whenever any of your code changes:
 ./vendor/bin/phpspec-watcher watch
 ```
 
-
 Full phpspec documentation: [https://www.phpspec.net/en/stable/manual/introduction.html]
+
+## Changelog
+
+v1.2 - Setup improvements and fixes, added `wp-test reset` command, internal refactoring, updated readme.
+
+v1.1 - Revised `wp-test init` command to allow choice to use phpspec or not for unit tests. Improvements and fixes to config templates. Added phpunit-watcher. Added readme. 
+
+v1.0.2 - Fix phpunit.xml template to align with WP Core
+
+v1.0.1 - New repo for WP Core, fix config paths and PHPUnit version to WP compatibility
+
+v1.0 - Initial version
 
 ## Footnotes
 

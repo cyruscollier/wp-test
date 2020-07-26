@@ -56,6 +56,7 @@ EOF
             $suite = reset($suites);
             $path_unit_tests = $suite['spec_path'] . DIRECTORY_SEPARATOR . $suite['spec_prefix'];
             $this->deleteFile("$project_dir/$path_unit_tests/ExampleSpec.php", $output);
+            $this->deleteFile("$project_dir/{$suite['spec_path']}/phpspec.php", $output);
             $this->deleteFile($phpspec_config_file, $output);
             @rmdir("$project_dir/$path_unit_tests");
         }

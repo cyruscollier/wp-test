@@ -1,4 +1,4 @@
-# WP Test
+![WP Test](https://github.com/cyruscollier/wp-test/blob/master/logo.jpg?raw=true)
 
 WP Test is a library for quickly and easily setting up and executing WordPress unit and integration tests. 
 It allows you to initialize an automated test suite on any new or existing WordPress theme, plugin or full website project.
@@ -88,7 +88,7 @@ For integration tests:
 ./vendor/bin/phpunit --group integration
 ```
 
-Full PHPUnit documentation: [https://phpunit.readthedocs.io/en/7.5/]
+Full PHPUnit documentation: https://phpunit.readthedocs.io/en/7.5/
 
 If using Advanced TDD Mode, run phpspec:
 
@@ -102,7 +102,7 @@ or [run the watcher](https://github.com/fetzi/phpspec-watcher) to re-run tests w
 ./vendor/bin/phpspec-watcher watch
 ```
 
-Full phpspec documentation: [https://www.phpspec.net/en/stable/manual/introduction.html]
+Full phpspec documentation: https://www.phpspec.net/en/stable/manual/introduction.html
 
 ## Changelog
 

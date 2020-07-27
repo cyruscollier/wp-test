@@ -1,4 +1,4 @@
-![WP Test](https://github.com/cyruscollier/wp-test/blob/master/logo.jpg?raw=true)
+![WP Test](https://github.com/cyruscollier/wp-test/blob/master/logo.png?raw=true)
 
 WP Test is a library for quickly and easily setting up and executing WordPress unit and integration tests. 
 It allows you to initialize an automated test suite on any new or existing WordPress theme, plugin or full website project.

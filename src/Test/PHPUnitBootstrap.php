@@ -59,6 +59,15 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
 
     public function setActivePlugins() {
         $this->requireAdmin('includes/plugin.php');
+        /* Include symlink if project is a plugin */
+        $project_plugins = array_filter(glob($this->util->getProjectDirectory() . '/*.php'), function($file) {
+            $plugin_data = get_plugin_data( $file, false, false );
+            return !empty($plugin_data['Name']);
+        });
+        $project_plugin = reset($project_plugins);
+        if ($project_plugin && ($link = WP_PLUGIN_DIR . '/' . basename($project_plugin)) && !file_exists($link)) {
+            symlink($project_plugin, $link);
+        }
         $plugins = get_plugins();
         echo "Loading plugins:\n";
         $plugins_to_activate = defined('WP_TESTS_INSTALL_PLUGINS') ? explode(',', WP_TESTS_INSTALL_PLUGINS) : [];
@@ -82,9 +91,18 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
     }
 
     public function setActiveTheme() {
-        $themes = wp_get_themes();
-        echo "Loading theme:\n";
+        /* Register parent directory if project is a theme */
+        $theme_data = get_file_data($this->util->getProjectDirectory() . '/style.css', ['Name' => 'Theme Name'], 'theme');
+        if (!empty($theme_data['Name'])) {
+            register_theme_directory(dirname($this->util->getProjectDirectory()));
+        }
+        $themes = wp_get_themes(['errors' => null]);
         $theme = $themes[WP_TESTS_ACTIVATE_THEME];
+
+        if ($theme->errors()) {
+            echo "Theme Activation Error: " . $theme->errors()->get_error_message();
+        }
+        echo "Loading theme:\n";
         echo "--{$theme->name} {$theme->version}\n";
     }
 }

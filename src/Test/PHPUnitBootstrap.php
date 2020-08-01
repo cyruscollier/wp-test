@@ -58,16 +58,22 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
     }
 
     public function setActivePlugins() {
+        $plugin_paths = defined('WP_TESTS_ADDITIONAL_PLUGINS') ?
+            array_map('trailingslashit', explode(',', WP_TESTS_ADDITIONAL_PLUGINS)) : [];
+        $plugin_paths[] = '';
         $this->requireAdmin('includes/plugin.php');
         /* Include symlink if project is a plugin */
-        $project_plugins = array_filter(glob($this->util->getProjectDirectory() . '/*.php'), function($file) {
-            $plugin_data = get_plugin_data( $file, false, false );
-            return !empty($plugin_data['Name']);
-        });
-        $project_plugin = reset($project_plugins);
-        if ($project_plugin && ($link = WP_PLUGIN_DIR . '/' . basename($project_plugin)) && !file_exists($link)) {
-            symlink($project_plugin, $link);
+        foreach ($plugin_paths as $path) {
+            $glob = sprintf('%s/%s*.php',$this->util->getProjectDirectory(), ltrim($path, '/'));
+            $entry_files = array_filter(glob($glob), function ($file) {
+                $plugin_data = get_plugin_data($file, false, false);
+                return !(empty($plugin_data['Name']) || is_link(WP_PLUGIN_DIR . '/' . basename($file)));
+            });
+            array_walk($entry_files, function($file) {
+                symlink($file, WP_PLUGIN_DIR . '/' . basename($file));
+            });
         }
+        wp_cache_delete( 'plugins', 'plugins' );
         $plugins = get_plugins();
         echo "Loading plugins:\n";
         $plugins_to_activate = defined('WP_TESTS_INSTALL_PLUGINS') ? explode(',', WP_TESTS_INSTALL_PLUGINS) : [];
@@ -92,9 +98,11 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
 
     public function setActiveTheme() {
         /* Register parent directory if project is a theme */
-        $theme_data = get_file_data($this->util->getProjectDirectory() . '/style.css', ['Name' => 'Theme Name'], 'theme');
-        if (!empty($theme_data['Name'])) {
-            register_theme_directory(dirname($this->util->getProjectDirectory()));
+        if (is_readable($this->util->getProjectDirectory() . '/style.css')) {
+            $theme_data = get_file_data($this->util->getProjectDirectory() . '/style.css', ['Name' => 'Theme Name'], 'theme');
+            if (!empty($theme_data['Name'])) {
+                register_theme_directory(dirname($this->util->getProjectDirectory()));
+            }
         }
         $themes = wp_get_themes(['errors' => null]);
         $theme = $themes[WP_TESTS_ACTIVATE_THEME];

@@ -106,6 +106,8 @@ Full phpspec documentation: https://www.phpspec.net/en/stable/manual/introductio
 
 ## Writing WordPress PHPUnit Tests
 
+### Class Setup
+
 For each PHPUnit test class, extend WP Test's `WPTest\Test\TestCase` class,
 a subclass of WordPress's `WP_UnitTestCase` class, which itself extends PHPUnit's `PHPUnit\Framework\TestCase` class.
 
@@ -114,12 +116,15 @@ WordPress starts a database transaction and prepares global state during `setup(
 and rolls back the transaction and resets global and other state back to baseline.
 This ensures each test method starts with a clean WordPress environment exactly as expected.
 
+### Factories & Managing State
+
 Although you have full access to the entire WordPress core API,
 the test environment Factories are useful for easily creating posts, terms, users and other entities.
 Dummy data will be added to any database field that is not supplied.
 For the Post Factory for example, in one line you can create and return a new post with whatever custom data you need on it:
 
  ```
+/* Test */
 $event_post = $this->factory()->post->create_and_get([
     'post_type' => 'event',
     'meta_input' => [
@@ -130,8 +135,15 @@ $event_post = $this->factory()->post->create_and_get([
 ```
 
 Like most unit tests, start a test method with setting up whatever state is needed before executing the method/function under test.
-For WordPress, this usually means creating posts and terms, adding options, or if needed for the test,
-setting the current user with `wp_set_current_user(1)`, which sets the initial installed admin user.
+For WordPress, this usually means one or more of the following:
+
+1. Creating WordPress entities: posts, terms, or users
+1. Adding meta to newly-created entities or adding terms to posts.
+1. Setting built-in or custom options
+1. Populating PHP super globals manually, such as `$_GET`, `$_POST`, etc.
+1. Calling WordPress functions that set various global state, such as `set_current_screen()`, `wp_set_current_user()`, etc.
+1. Manipulating WordPress globals manually, such as `$post`, `$wp_query`, etc.
+
 Then execute the function/method and make PHPUnit assertions about how database or other state has changed.
 WP Test provides several additional WordPress-specific assertions on top of the ones supplied by WordPress.
 
@@ -140,13 +152,14 @@ it can sometime be a helpful technique to test several different variations or s
 Otherwise you have to recreate the same initial or resulting state in a separate method, which duplicates work and slows down the test suite.
 Use with caution though, as you still want to only be testing one discreet behavior of your code base in a single test method.
 
-## Mocking External HTTP Requests
+### Mocking HTTP Requests
 
-Making real HTTP requests inside unit tests makes the test suite slow and brittle, so it's best to mock the request and response.
+Making real HTTP requests inside unit tests make the test suite slow and brittle, so it's best to mock the request and response.
 Assuming your code is using `wp_remote_get()`, `wp_remote_post()` or similar wrappers of `WP_Http`,
-use the `pre_http_request` filter make assertions on expected inputs and return a fake response:
+use the `pre_http_request` filter to make assertions on expected inputs and return a fake response:
 
 ```
+/* Test */
 add_filter('pre_http_request', function($pre, $parsed_args, $url) {
     $this->assertEquals('https://yourapi.com/path/to/resource/', $url);
     $this->assertContains(['method' => 'POST', 'body' => [
@@ -158,7 +171,76 @@ add_filter('pre_http_request', function($pre, $parsed_args, $url) {
 $this->assertEquals(['message' => 'success'], $Client->makeRequest('some parameter'));
 ```
 
+### Mocking Redirects
 
+Most unit tests are directed at lower-level code and typically won't deal with higher-level application logic like redirects. However, if you decide to unit test application logic like form submissions and redirects, you need to be able to verify the redirect URL without actually outputting a Location header. Outputting the header will trigger a "Headers Already Sent" warning in the test environment because it is an long-running PHP process that isn't serving a response to a browser. Most calls to `wp_redirect()` are followed shortly after with `exit`/`die`, which also can't happen in the test envionment since it will terminate the process. Since a successful `wp_redirect()` will return `true`, check the return value of `wp_redirect()` before exiting using this useful, one-line conditional:
+
+```
+/* Source */
+return wp_redirect($redirect_url) && exit;
+```
+
+Then in your test, add a filter similar to mocking HTTP requests that returns false instead, thereby avoiding the header and exit:
+
+```
+/* Test */
+add_filter('wp_redirect', function($url) {
+    $this->assertEquals('https://yoursite.com/form-success-page', $url);
+    return false;
+});
+$this->assertFalse($Form->redirect());
+```
+
+### Testing Output
+
+Testing PHP output from `echo`, `printf()`, etc. is not WordPress-specific, but it comes up a lot more because so much of the API requires output to be echoed rather than simply returning a value. To test these scenarios, use output buffering. You can either capture the output directly using `ob_get_clean()` and use WP Test's `assertHTMLEquals()` assertion to compare it to an expected HTML snippet, or if the data used to prepare the output is more useful or easier to work it, just return it after the output and assert against it.
+
+```
+/* Source */
+function output_something()
+{
+    // ...
+    $data = ['thing 1', 'thing 2'];
+    printf('<ul><li>%s</li></ul>', implode('</li><li>', $data));
+    return $data;
+}
+```
+
+```
+/* Test */
+ob_start();
+output_something();
+$output = ob_get_clean();
+$this->assertHTMLEquals('<ul><li>thing 1</li><li>thing 2</li></ul>', $output);
+// or
+ob_start();
+$data = output_something();
+ob_get_clean();
+$this->assertEquals(['thing 1', 'thing 2'], $data);
+```
+
+### Testing Hooks
+
+Testing hooks involves two parts. First, verify that the hook has been added with its assigned callback. Second, either fire that hook or execute the function directly, and make assertions based on its return value, state change, etc. Make sure the hook's callback function is a referenceable function or method, not an anonymous function. It's helpful for action callbacks to return useful data that can be asserted against, even though that return value isn't used in live execution:
+
+```
+/* Source */
+function perform_custom_action()
+{
+    // ...
+    $data = ['thing 1', 'thing 2'];
+    // ...
+    return $data;
+}
+
+add_action('init', 'perform_custom_action');
+```
+
+```
+/* Test */
+$this->assertHasAction('init', 'perform_custom_action');
+$this->assertEquals(['thing 1', 'thing 2'], perform_custom_actio());
+```
 
 
 ## Changelog

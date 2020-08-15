@@ -22,14 +22,14 @@ It allows you to initialize an automated test suite on any new or existing WordP
 
 Add the dedicated package repository for WordPress Core<sup>[[1]](#footnote-1)</sup> and download the Composer package as a dev dependency to your WordPress project:
 
-```
+```shell
 composer config repositories.cyruscollier composer https://packages.cyruscollier.com
 composer require cyruscollier/wp-test --dev
 ```
 
 Run the initialization console command. You may leave off the full path if your system `$PATH` already includes your local Composer bin directory.
 
-```
+```shell
 ./vendor/bin/wp-test init
 ```
 
@@ -50,7 +50,7 @@ There are many ways to install a mysql server, depending on your operating syste
 Here are two recommended methods:
 
 Homebrew (Mac OS only)
-```
+```shell
 brew update
 brew install mysql@5.7
 brew link mysql@5.7 --force
@@ -59,7 +59,7 @@ mysql -uroot -e "CREATE DATABASE IF NOT EXISTS wp_tests CHARACTER SET utf8mb4 CO
 ```
 
 Docker
-```
+```shell
 docker run -d -p 3306:3306 --name wp_tests -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=wp_tests mysql:5.7
 ```
 Docker requires a TCP connection to the mysql container, so in `wp-tests-config.php`, change `DB_HOST` to `127.0.0.1`.
@@ -72,19 +72,19 @@ or all test run commands must be executed directly in that environment instead o
 
 In your project root, run PHPUnit:
 
-```
+```shell
 ./vendor/bin/phpunit
 ```
 
 or [run the watcher](https://github.com/spatie/phpunit-watcher) to re-run tests whenever any of your code changes:
 
-```
+```shell
 ./vendor/bin/phpunit-watcher watch
 ```
 
 For integration tests:
 
-```
+```shell
 ./vendor/bin/phpunit --group integration
 ```
 
@@ -92,13 +92,13 @@ Full PHPUnit documentation: https://phpunit.readthedocs.io/en/7.5/
 
 If using Advanced TDD Mode, run phpspec:
 
-```
+```shell
 ./vendor/bin/phpspec run
 ```
 
 or [run the watcher](https://github.com/fetzi/phpspec-watcher) to re-run tests whenever any of your code changes:
 
-```
+```shell
 ./vendor/bin/phpspec-watcher watch
 ```
 
@@ -123,7 +123,7 @@ the test environment Factories are useful for easily creating posts, terms, user
 Dummy data will be added to any database field that is not supplied.
 For the Post Factory for example, in one line you can create and return a new post with whatever custom data you need on it:
 
- ```
+```php
 /* Test */
 $event_post = $this->factory()->post->create_and_get([
     'post_type' => 'event',
@@ -156,33 +156,65 @@ Use with caution though, as you still want to only be testing one discreet behav
 
 Making real HTTP requests inside unit tests make the test suite slow and brittle, so it's best to mock the request and response.
 Assuming your code is using `wp_remote_get()`, `wp_remote_post()` or similar wrappers of `WP_Http`,
-use the `pre_http_request` filter to make assertions on expected inputs and return a fake response:
+use the `pre_http_request` filter to make assertions on expected inputs and return a fake response array containing a `body` array. You should also simluate returning a `WP_Error` object as the response, so your code can handle it appropriately:
+
+```php
+/* Source */
+function make_api_request($parameter)
+{
+    $response = wp_remote_post('https://yourapi.com/path/to/resource/', [
+        'body' => [
+           'keyword' => $parameter,
+           'apikey' => 'your api key'
+        ]
+    ]);
+    if (is_wp_error($response)) {
+        throw new Exception($response->get_error_message());
+    }
+    return json_decode($response['body']);
+);
 
 ```
+
+```php
 /* Test */
 add_filter('pre_http_request', function($pre, $parsed_args, $url) {
     $this->assertEquals('https://yourapi.com/path/to/resource/', $url);
     $this->assertContains(['method' => 'POST', 'body' => [
-        'keyword' => 'some parameter',
+        'keyword' => 'test keyword',
         'apikey' => 'your api key'
     ]], $parsed_args);
     return ['body' => json_encode(['message' => 'success']])];
 }, 10, 3);
-$this->assertEquals(['message' => 'success'], $Client->makeRequest('some parameter'));
+$this->assertEquals(['message' => 'success'], make_api_request('test keyword'));
+```
+
+```php
+/* Test */
+add_filter('pre_http_request', function($pre, $parsed_args, $url) {
+    $this->assertContains(['method' => 'POST', 'body' => [
+        'keyword' => 'bad keyword',
+        'apikey' => 'invalid api key'
+    ]], $parsed_args);
+    return new WP_Error('http_request_failed', 'Invalid API Key');
+}, 10, 3);
+$this->expectException(Exception::class);
+$this-expectExceptionMessage('Invalid API Key');
+make_api_request('test keyword');
 ```
 
 ### Mocking Redirects
 
 Most unit tests are directed at lower-level code and typically won't deal with higher-level application logic like redirects. However, if you decide to unit test application logic like form submissions and redirects, you need to be able to verify the redirect URL without actually outputting a Location header. Outputting the header will trigger a "Headers Already Sent" warning in the test environment because it is an long-running PHP process that isn't serving a response to a browser. Most calls to `wp_redirect()` are followed shortly after with `exit`/`die`, which also can't happen in the test envionment since it will terminate the process. Since a successful `wp_redirect()` will return `true`, check the return value of `wp_redirect()` before exiting using this useful, one-line conditional:
 
-```
+```php
 /* Source */
 return wp_redirect($redirect_url) && exit;
 ```
 
 Then in your test, add a filter similar to mocking HTTP requests that returns false instead, thereby avoiding the header and exit:
 
-```
+```php
 /* Test */
 add_filter('wp_redirect', function($url) {
     $this->assertEquals('https://yoursite.com/form-success-page', $url);
@@ -195,7 +227,7 @@ $this->assertFalse($Form->redirect());
 
 Testing PHP output from `echo`, `printf()`, etc. is not WordPress-specific, but it comes up a lot more because so much of the API requires output to be echoed rather than simply returning a value. To test these scenarios, use output buffering. You can either capture the output directly using `ob_get_clean()` and use WP Test's `assertHTMLEquals()` assertion to compare it to an expected HTML snippet, or if the data used to prepare the output is more useful or easier to work it, just return it after the output and assert against it.
 
-```
+```php
 /* Source */
 function output_something()
 {
@@ -206,7 +238,7 @@ function output_something()
 }
 ```
 
-```
+```php
 /* Test */
 ob_start();
 output_something();
@@ -223,7 +255,7 @@ $this->assertEquals(['thing 1', 'thing 2'], $data);
 
 Testing hooks involves two parts. First, verify that the hook has been added with its assigned callback. Second, either fire that hook or execute the function directly, and make assertions based on its return value, state change, etc. Make sure the hook's callback function is a referenceable function or method, not an anonymous function. It's helpful for action callbacks to return useful data that can be asserted against, even though that return value isn't used in live execution:
 
-```
+```php
 /* Source */
 function perform_custom_action()
 {
@@ -236,7 +268,7 @@ function perform_custom_action()
 add_action('init', 'perform_custom_action');
 ```
 
-```
+```php
 /* Test */
 $this->assertHasAction('init', 'perform_custom_action');
 $this->assertEquals(['thing 1', 'thing 2'], perform_custom_actio());

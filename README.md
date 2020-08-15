@@ -156,7 +156,7 @@ Use with caution though, as you still want to only be testing one discreet behav
 
 Making real HTTP requests inside unit tests make the test suite slow and brittle, so it's best to mock the request and response.
 Assuming your code is using `wp_remote_get()`, `wp_remote_post()` or similar wrappers of `WP_Http`,
-use the `pre_http_request` filter to make assertions on expected inputs and return a fake response array containing a `body` array. You should also simluate returning a `WP_Error` object as the response, so your code can handle it appropriately:
+use the `pre_http_request` filter to make assertions on expected inputs and return a fake response array containing a `body` array. You should also simulate returning a `WP_Error` object as the response, so your code can handle it appropriately:
 
 ```php
 /* Source */
@@ -193,7 +193,7 @@ $this->assertEquals(['message' => 'success'], make_api_request('test keyword'));
 /* Test */
 add_filter('pre_http_request', function($pre, $parsed_args, $url) {
     $this->assertContains(['method' => 'POST', 'body' => [
-        'keyword' => 'bad keyword',
+        'keyword' => 'test keyword',
         'apikey' => 'invalid api key'
     ]], $parsed_args);
     return new WP_Error('http_request_failed', 'Invalid API Key');
@@ -205,11 +205,15 @@ make_api_request('test keyword');
 
 ### Mocking Redirects
 
-Most unit tests are directed at lower-level code and typically won't deal with higher-level application logic like redirects. However, if you decide to unit test application logic like form submissions and redirects, you need to be able to verify the redirect URL without actually outputting a Location header. Outputting the header will trigger a "Headers Already Sent" warning in the test environment because it is an long-running PHP process that isn't serving a response to a browser. Most calls to `wp_redirect()` are followed shortly after with `exit`/`die`, which also can't happen in the test envionment since it will terminate the process. Since a successful `wp_redirect()` will return `true`, check the return value of `wp_redirect()` before exiting using this useful, one-line conditional:
+Most unit tests are directed at lower-level code and typically won't deal with higher-level application logic like redirects. However, if you decide to unit test application logic like form submissions and redirects, you need to be able to verify the redirect URL without actually outputting a Location header. Outputting the header will trigger a "Headers Already Sent" warning in the test environment because it is an long-running PHP process that isn't serving a response to a browser. Most calls to `wp_redirect()` are followed shortly after with `exit`/`die`, which also can't happen in the test envionment since it will terminate the process. Since a successful `wp_redirect()` will return `true`, check the return value of `wp_redirect()` before exiting using this one-line conditional:
 
 ```php
 /* Source */
-return wp_redirect($redirect_url) && exit;
+function form_redirect()
+{
+    $redirect_url = 'https://yoursite.com/form-success-page';
+    return wp_redirect($redirect_url) && exit;
+}
 ```
 
 Then in your test, add a filter similar to mocking HTTP requests that returns false instead, thereby avoiding the header and exit:
@@ -220,7 +224,7 @@ add_filter('wp_redirect', function($url) {
     $this->assertEquals('https://yoursite.com/form-success-page', $url);
     return false;
 });
-$this->assertFalse($Form->redirect());
+$this->assertFalse(form_redirect());
 ```
 
 ### Testing Output
@@ -231,7 +235,6 @@ Testing PHP output from `echo`, `printf()`, etc. is not WordPress-specific, but 
 /* Source */
 function output_something()
 {
-    // ...
     $data = ['thing 1', 'thing 2'];
     printf('<ul><li>%s</li></ul>', implode('</li><li>', $data));
     return $data;
@@ -253,7 +256,7 @@ $this->assertEquals(['thing 1', 'thing 2'], $data);
 
 ### Testing Hooks
 
-Testing hooks involves two parts. First, verify that the hook has been added with its assigned callback. Second, either fire that hook or execute the function directly, and make assertions based on its return value, state change, etc. Make sure the hook's callback function is a referenceable function or method, not an anonymous function. It's helpful for action callbacks to return useful data that can be asserted against, even though that return value isn't used in live execution:
+Testing hooks involves two parts. First, verify that the hook has been added with its assigned callback. Second, either fire that hook or execute the function directly, and make assertions based on its return value, state change, etc. Make sure the hook's callback is a named function or method, not an anonymous function, so it can be referenced in `assertHasAction()`. It's helpful for action callbacks to return useful data that can be asserted against, even though that return value isn't used in live execution:
 
 ```php
 /* Source */

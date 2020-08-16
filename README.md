@@ -104,17 +104,26 @@ or [run the watcher](https://github.com/fetzi/phpspec-watcher) to re-run tests w
 
 Full phpspec documentation: https://www.phpspec.net/en/stable/manual/introduction.html
 
+## Configuration options in phpunit.xml
+
+PHP Constant | Default Value | Description
+------------ | ------------- | -----------
+`WP_TESTS_MULTISITE` | `"0"` | Set to `"1"` if testing a multisite project
+`WP_TESTS_ACTIVATE_THEME` | `"twentytwenty"` | Sets the name of the active theme; updated to your theme name during setup
+`WP_TESTS_ACTIVATE_PLUGINS` | `"1"` | Set to `"0"` if plugins inside `wp-content` should not be automatically activated in test environment
+`WP_TESTS_INSTALL_PLUGINS` | `""` | If a plugin triggers warnings or errors when automatically activated in the test environment, this usually means that plugin is missing its initial install process. Add directory names, separated by commas, of any plugins that need to run through its install process to work properly in the test environment. Example: `"gravityforms,wp-all-import-pro"`
+`WP_TESTS_ADDITIONAL_PLUGINS` | `""` | Usually only needed when testing a theme or plugin project in isolation that has one or more plugin dependencies. Full site projects should already have all required plugins in wp-content. Include directory paths relative to the project root, separated by commas, of plugins that need to be included in the test environment. Example: `"wp-content/plugins/advanced-custom-fields-pro,wp-content/plugins/js_composer"`
+`WP_TESTS_CONFIG_FILE_PATH` | `"wp-tests-config.php"` |  Path to special wp-config file used for test environment
+
 ## Writing WordPress PHPUnit Tests
 
 ### Class Setup
 
-For each PHPUnit test class, extend WP Test's `WPTest\Test\TestCase` class,
+For each PHPUnit test class, extend the `WPTest\Test\TestCase` class,
 a subclass of WordPress's `WP_UnitTestCase` class, which itself extends PHPUnit's `PHPUnit\Framework\TestCase` class.
 
 If you add `setup()` or `teardown()` method to your test class, you must be sure to call the parent method inside it.
-WordPress starts a database transaction and prepares global state during `setup()`
-and rolls back the transaction and resets global and other state back to baseline.
-This ensures each test method starts with a clean WordPress environment exactly as expected.
+WordPress starts a database transaction and prepares global state during `setup()` and rolls back the transaction and resets global and other state back to baseline during `teardown()`. This setup and teardown process ensures each test method starts with a clean WordPress environment exactly as expected.
 
 ### Factories & Managing State
 
@@ -137,14 +146,14 @@ $event_post = $this->factory()->post->create_and_get([
 Like most unit tests, start a test method with setting up whatever state is needed before executing the method/function under test.
 For WordPress, this usually means one or more of the following:
 
-1. Creating WordPress entities: posts, terms, or users
+1. Creating WordPress entities: posts, terms, users, etc.
 1. Adding meta to newly-created entities or adding terms to posts.
-1. Setting built-in or custom options
-1. Populating PHP super globals manually, such as `$_GET`, `$_POST`, etc.
-1. Calling WordPress functions that set various global state, such as `set_current_screen()`, `wp_set_current_user()`, etc.
-1. Manipulating WordPress globals manually, such as `$post`, `$wp_query`, etc.
+1. Setting core options or custom options.
+1. Populating PHP superglobals manually: `$_GET`, `$_POST`, etc.
+1. Calling WordPress functions that set various global state: `set_current_screen()`, `wp_set_current_user()`, etc.
+1. Manipulating WordPress globals manually: `$post`, `$wp_query`, etc.
 
-Then execute the function/method and make PHPUnit assertions about how database or other state has changed.
+Then execute the function/method under test and make PHPUnit assertions about how the database or other state has changed.
 WP Test provides several additional WordPress-specific assertions on top of the ones supplied by WordPress.
 
 Since the WordPress database and global state remains throughout the duration of a single test method,
@@ -256,7 +265,7 @@ $this->assertEquals(['thing 1', 'thing 2'], $data);
 
 ### Testing Hooks
 
-Testing hooks involves two parts. First, verify that the hook has been added with its assigned callback. Second, either fire that hook or execute the function directly, and make assertions based on its return value, state change, etc. Make sure the hook's callback is a named function or method, not an anonymous function, so it can be referenced in `assertHasAction()`. It's helpful for action callbacks to return useful data that can be asserted against, even though that return value isn't used in live execution:
+Testing hooks involves two parts. First, verify that the hook has been added with its assigned callback. Second, either fire that hook or execute the function directly, and make assertions based on its return value, state change, etc. Make sure the hook's callback is a named function or method, not an anonymous function, so it can be referenced in `assertHasAction()`/`assertHasFilter()`. It's helpful for action callbacks to return useful data that can be asserted against, even though that return value isn't used in live execution:
 
 ```php
 /* Source */
@@ -279,6 +288,8 @@ $this->assertEquals(['thing 1', 'thing 2'], perform_custom_actio());
 
 
 ## Changelog
+
+v1.3 - Added ability to use in an isolated theme or plugin project, phpunit.xml fixes, expanded and improved documentation.
 
 v1.2 - Setup improvements and fixes, added `wp-test reset` command, internal refactoring, updated readme.
 

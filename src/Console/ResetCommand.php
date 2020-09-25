@@ -81,6 +81,9 @@ EOF
         } else {
             $output->write(`composer remove spatie/phpunit-watcher --dev`);
         }
+        $core_package = $Util::WP_CORE_PACKAGE;
+        $output->write(`composer remove $core_package  --dev`);
+        $output->write(`composer config --unset extra.wordpress-install-dir`);
 
         return 0;
     }

@@ -30,7 +30,7 @@
         <const name="WP_TESTS_CONFIG_FILE_PATH" value="wp-tests-config.php" />
     </php>
     <listeners>
-        <listener class="SpeedTrapListener" file="{path_wp_develop}/tests/phpunit/includes/listener-loader.php">
+        <listener class="SpeedTrapListener" file="{tests_include_path}/listener-loader.php">
             <arguments>
                 <array>
                     <element key="slowThreshold">

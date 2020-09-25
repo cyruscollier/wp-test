@@ -4,6 +4,7 @@ namespace WPTest\Util;
 
 class Util
 {
+    const WP_CORE_PACKAGE = 'johnpbloch/wordpress';
     const WP_PHPUNIT_PACKAGE = 'wp-phpunit/wp-phpunit';
     const DEFAULT_THEME = 'twentytwenty';
 
@@ -45,7 +46,7 @@ class Util
         return $this->composer_data;
     }
 
-    public function getVendorDirectory()
+    public function getVendorPath()
     {
         $composer_data = $this->getComposerData();
         return isset($composer_data['config']['vendor-dir']) ?
@@ -62,28 +63,42 @@ class Util
         return trim($this->getAutoloadPath(), '/');
     }
 
-    public function getWPCoreDirectory()
+    public function isWPCoreRequired()
     {
         $composer_data = $this->getComposerData();
+        $require = $composer_data['require'] ?? [];
+        $require_dev = $composer_data['require-dev'] ?? [];
+        return isset($require[static::WP_CORE_PACKAGE]) || isset($require[static::WP_CORE_PACKAGE]);
+    }
 
-        $wp_path = isset($composer_data['extra']['wordpress-install-dir']) ?
+    public function getWPCorePath()
+    {
+        $composer_data = $this->getComposerData();
+        return isset($composer_data['extra']['wordpress-install-dir']) ?
             $composer_data['extra']['wordpress-install-dir'] : 'wordpress';
 
-        return sprintf('%s/%s', $this->getProjectDirectory(), $wp_path);
     }
 
-    public function getTestsIncludesDirectory()
+    public function getWPCoreDirectory()
     {
-        return sprintf('%s/%s/includes', $this->getVendorDirectory(), static::WP_PHPUNIT_PACKAGE);
+        return sprintf('%s/%s', $this->getProjectDirectory(), $this->getWPCorePath());
     }
 
-    public function getWPContentDirectory()
+    public function getTestsIncludesPath()
+    {
+        return sprintf('%s/%s/includes', $this->getVendorPath(), static::WP_PHPUNIT_PACKAGE);
+    }
+
+    public function getWPContentPath($core_path = null)
     {
         $project_directory = $this->getProjectDirectory();
         if (is_dir($project_directory . '/wp-content')) {
             return 'wp-content';
         }
-        return sprintf('%s/%s', $this->getWPDevelopDirectory(), '/wp-content');
+        if (is_null($core_path)) {
+            $core_path = $this->getWPCorePath();
+        }
+        return sprintf('%s/%s', $core_path, 'wp-content');
     }
 
     public function getWPActiveTheme()

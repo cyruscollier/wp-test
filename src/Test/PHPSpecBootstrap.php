@@ -12,7 +12,7 @@ class PHPSpecBootstrap extends TestRunnerBootstrap
 
     public function load()
     {
-        define('WP_CONTENT_DIR', $this->util->getWPContentDirectory());
+        define('WP_CONTENT_DIR', sprintf('%s/%s', $this->util->getProjectDirectory(), $this->util->getWPContentPath()));
 
         $this->require('class-wp-post.php');
         $this->require('class-wp-post-type.php');

@@ -18,9 +18,9 @@ class InitCommand extends Command
     protected $project_dir;
     protected $wp_tests_dir;
     protected $templates_dir;
-    protected $path_wp_tests;
     protected $vendor_path;
-    protected $path_wp_develop;
+    protected $wp_core_path;
+    protected $tests_include_path;
 
     public function __construct(string $name = null)
     {
@@ -31,8 +31,8 @@ class InitCommand extends Command
         $this->templates_dir = $this->wp_tests_dir . '/templates';
         $parts = explode($this->project_dir, $this->wp_tests_dir);
         $this->path_wp_tests = ltrim(end($parts), '/') ?: '.';
-        $this->vendor_path = $this->Util->getVendorDirectory();
-        $this->path_wp_develop = $this->Util->getWPDevelopDirectory();
+        $this->vendor_path = $this->Util->getVendorPath();
+        $this->tests_include_path = $this->Util->getTestsIncludesPath();
     }
 
     protected function configure()
@@ -102,9 +102,14 @@ EOF
         $phpunit_path = $advanced ? $path_integration_tests : $path_unit_tests;
         $phpunit_bootstrap_path = dirname($phpunit_path);
 
-        $default_wp_content = $this->Util->getWPContentDirectory();
+
+        $default_wp_core = $this->Util->getWPCorePath();
+        $question = new Question("Path to WordPress Core directory, relative to project root [$default_wp_core]: ", $default_wp_core);
+        $wp_core_path = $helper->ask($input, $output, $question);
+
+        $default_wp_content = $this->Util->getWPContentPath($wp_core_path);
         $question = new Question("Path to wp-content directory, relative to project root [$default_wp_content]: ", $default_wp_content);
-        $path_wp_content = $helper->ask($input, $output, $question);
+        $wp_content_path = $helper->ask($input, $output, $question);
 
         $default_active_theme = $this->Util->getWPActiveTheme();
         $question = new Question("Active theme [$default_active_theme]: ", $default_active_theme);
@@ -125,7 +130,7 @@ EOF
         }
 
         $this->generateFile("$this->project_dir/phpunit.xml", $output, compact(
-            'phpunit_path', 'active_theme', 'phpunit_bootstrap_path'
+            'phpunit_path', 'active_theme', 'phpunit_bootstrap_path', 'wp_core_path'
         ));
         $this->generateFile("$this->project_dir/$phpunit_bootstrap_path/phpunit.php", $output);
 
@@ -134,15 +139,20 @@ EOF
             'path_unit_tests', 'source_path'
         ));
         $this->generateFile("$this->project_dir/$phpunit_path/ExampleTest.php", $output, compact('namespace_relative'));
-        $this->generateFile("$this->project_dir/wp-tests-config.php", $output, compact('path_wp_content'));
+        $this->generateFile("$this->project_dir/wp-tests-config.php", $output, compact('wp_core_path', 'wp_content_path'));
 
         $output->writeln('Installing additional dependencies:');
         if ($advanced) {
-            $output->write(`composer require phpspec/phpspec fetzi/phpspec-watcher cyruscollier/phpspec-php-mock --dev`);
+            $packages = ['phpspec/phpspec', 'fetzi/phpspec-watcher', 'cyruscollier/phpspec-php-mock'];
         } else {
-            $output->write(`composer require spatie/phpunit-watcher --dev`);
+            $packages = ['spatie/phpunit-watcher'];
         }
-
+        if (!$this->Util->isWPCoreRequired()) {
+            $packages[] = $this->Util::WP_CORE_PACKAGE;
+        }
+        $command = sprintf('composer require %s --dev', implode(' ', $packages));
+        $output->write(`$command`);
+        $output->write(`composer config extra.wordpress-install-dir $wp_core_path`);
         return 0;
     }
 

@@ -4,7 +4,7 @@ namespace WPTest\Util;
 
 class Util
 {
-    const PATH_WP_DEVELOP = 'wordpress/wordpress';
+    const WP_PHPUNIT_PACKAGE = 'wp-phpunit/wp-phpunit';
     const DEFAULT_THEME = 'twentytwenty';
 
     protected $project_directory;
@@ -59,12 +59,22 @@ class Util
 
     public function getPSR4Source()
     {
-        return trim($this->getAutoloadPath(), '/') ?: 'src';
+        return trim($this->getAutoloadPath(), '/');
     }
 
-    public function getWPDevelopDirectory()
+    public function getWPCoreDirectory()
     {
-        return sprintf('%s/%s', $this->getVendorDirectory(), static::PATH_WP_DEVELOP);
+        $composer_data = $this->getComposerData();
+
+        $wp_path = isset($composer_data['extra']['wordpress-install-dir']) ?
+            $composer_data['extra']['wordpress-install-dir'] : 'wordpress';
+
+        return sprintf('%s/%s', $this->getProjectDirectory(), $wp_path);
+    }
+
+    public function getTestsIncludesDirectory()
+    {
+        return sprintf('%s/%s/includes', $this->getVendorDirectory(), static::WP_PHPUNIT_PACKAGE);
     }
 
     public function getWPContentDirectory()
@@ -73,7 +83,7 @@ class Util
         if (is_dir($project_directory . '/wp-content')) {
             return 'wp-content';
         }
-        return sprintf('%s/%s', $this->getWPDevelopDirectory(), 'src/wp-content');
+        return sprintf('%s/%s', $this->getWPDevelopDirectory(), '/wp-content');
     }
 
     public function getWPActiveTheme()

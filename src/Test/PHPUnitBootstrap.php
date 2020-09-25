@@ -12,7 +12,7 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
     public function __construct()
     {
         parent::__construct();
-        $this->wp_tests_includes_path = $this->util->getWPDevelopDirectory() . '/tests/phpunit/includes';
+        $this->wp_tests_includes_path = $this->util->getTestsIncludesDirectory();
         $this->options =& $GLOBALS['wp_tests_options'];
         $this->requireTestsIncludes('functions.php');
         $this->is_integration_group = in_array('integration', getopt('',['group::']));

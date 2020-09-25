@@ -13,8 +13,8 @@ abstract class TestRunnerBootstrap
     public function __construct()
     {
         $this->util = new Util();
-        $this->wp_includes_path = $this->util->getWPDevelopDirectory() . '/src/wp-includes';
-        $this->wp_admin_path = $this->util->getWPDevelopDirectory() . '/src/wp-admin';
+        $this->wp_includes_path = $this->util->getWPCoreDirectory() . '/wp-includes';
+        $this->wp_admin_path = $this->util->getWPCoreDirectory() . '/wp-admin';
     }
 
     public function require($filename)

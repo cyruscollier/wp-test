@@ -289,7 +289,7 @@ $this->assertEquals(['thing 1', 'thing 2'], perform_custom_actio());
 
 ## Changelog
 
-v1.4 - Switched to WP PHPUnit instead of full Wordpress Core dependency. 
+v1.4 - Switched to WP PHPUnit instead of full Wordpress Core dependency. Remove Composer repository requirement.
 
 v1.3 - Added ability to use in an isolated theme or plugin project, phpunit.xml fixes, expanded and improved documentation.
 
@@ -302,7 +302,3 @@ v1.0.2 - Fix phpunit.xml template to align with WP Core
 v1.0.1 - New repo for WP Core, fix config paths and PHPUnit version to WP compatibility
 
 v1.0 - Initial version
-
-## Footnotes
-
-<sup id="footnote-1">[1]</sup> There is an [open WordPress Trac ticket](https://core.trac.wordpress.org/ticket/49077) to add WordPress Core to Packagist so the separate repository won't be required at some point in the future.

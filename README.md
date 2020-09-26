@@ -5,8 +5,8 @@ It allows you to initialize an automated test suite on any new or existing WordP
 
 ## Basic Features
 
-* Uses the same [PHPUnit](https://github.com/sebastianbergmann/phpunit) based framework that powers the [WordPress Core](https://github.com/wordpress/wordpress) test suite
-* CLI command to create and customize config files inside your project required by the Core test suite
+* Uses the same [PHPUnit](https://github.com/sebastianbergmann/phpunit) based framework that powers the [WordPress Core](https://github.com/wordpress/wordpress) test suite, thanks to a [mirror repo of the framework](https://github.com/wp-phpunit/wp-phpunit).
+* CLI command to create and customize config files inside your project required by the Core testing framework.
 * [Subclass of `WP_UnitTestCase`](https://github.com/cyruscollier/wp-test/blob/master/src/Test/TestCase.php) with additional convenience methods and custom assertions
 * [Enhanced PHPUnit bootstrap process](https://github.com/cyruscollier/wp-test/blob/master/src/Test/PHPUnitBootstrap.php) to automatically activate your project's theme and plugins
 * In addition to unit testing your code, there is a separate test group for integration tests with external services (Stripe, Facebook, etc.)
@@ -20,10 +20,9 @@ It allows you to initialize an automated test suite on any new or existing WordP
 
 ## Installation via Composer
 
-Add the dedicated package repository for WordPress Core<sup>[[1]](#footnote-1)</sup> and download the Composer package as a dev dependency to your WordPress project:
+Add the Composer package as a dev dependency to your WordPress project:
 
 ```shell
-composer config repositories.cyruscollier composer https://packages.cyruscollier.com
 composer require cyruscollier/wp-test --dev
 ```
 
@@ -40,6 +39,7 @@ Follow the prompts in the console to configure your testing environment.
 1. Source files path
 1. Path to unit tests
 1. Path to integration tests (Advanced TDD only)
+1. Path to WordPress Core directory, relative to project root
 1. Path to wp-content directory, relative to project root
 1. Active theme
 
@@ -288,6 +288,8 @@ $this->assertEquals(['thing 1', 'thing 2'], perform_custom_actio());
 
 
 ## Changelog
+
+v1.4 - Switched to WP PHPUnit instead of full Wordpress Core dependency. 
 
 v1.3 - Added ability to use in an isolated theme or plugin project, phpunit.xml fixes, expanded and improved documentation.
 

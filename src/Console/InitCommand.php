@@ -142,17 +142,13 @@ EOF
         $this->generateFile("$this->project_dir/wp-tests-config.php", $output, compact('wp_core_path', 'wp_content_path'));
 
         $output->writeln('Installing additional dependencies:');
-        if ($advanced) {
-            $packages = ['phpspec/phpspec', 'fetzi/phpspec-watcher', 'cyruscollier/phpspec-php-mock'];
-        } else {
-            $packages = ['spatie/phpunit-watcher'];
-        }
+        $packages = $advanced ? ['phpspec/phpspec', 'fetzi/phpspec-watcher', 'cyruscollier/phpspec-php-mock'] : ['spatie/phpunit-watcher'];
         if (!$this->Util->isWPCoreRequired()) {
             $packages[] = $this->Util::WP_CORE_PACKAGE;
         }
+        $output->write(`composer config extra.wordpress-install-dir $wp_core_path`);
         $command = sprintf('composer require %s --dev', implode(' ', $packages));
         $output->write(`$command`);
-        $output->write(`composer config extra.wordpress-install-dir $wp_core_path`);
         return 0;
     }
 

@@ -76,13 +76,10 @@ EOF
         $this->deleteFile("$project_dir/wp-tests-config.php", $output);
 
         $output->writeln('Removing additional dependencies:');
-        if ($advanced) {
-            $output->write(`composer remove phpspec/phpspec fetzi/phpspec-watcher cyruscollier/phpspec-php-mock --dev`);
-        } else {
-            $output->write(`composer remove spatie/phpunit-watcher --dev`);
-        }
-        $core_package = $Util::WP_CORE_PACKAGE;
-        $output->write(`composer remove $core_package  --dev`);
+        $packages = $advanced ? ['phpspec/phpspec', 'fetzi/phpspec-watcher', 'cyruscollier/phpspec-php-mock'] : ['spatie/phpunit-watcher'];
+        $packages[] = $Util::WP_CORE_PACKAGE;
+        $command = sprintf('composer remove %s --dev', implode(' ', $packages));
+        $output->write(`$command`);
         $output->write(`composer config --unset extra.wordpress-install-dir`);
 
         return 0;

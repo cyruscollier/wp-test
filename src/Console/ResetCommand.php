@@ -79,8 +79,8 @@ EOF
         $packages = $advanced ? ['phpspec/phpspec', 'fetzi/phpspec-watcher', 'cyruscollier/phpspec-php-mock'] : ['spatie/phpunit-watcher'];
         $packages[] = $Util::WP_CORE_PACKAGE;
         $command = sprintf('composer remove %s --dev', implode(' ', $packages));
-        $output->write(`$command`);
-        $output->write(`composer config --unset extra.wordpress-install-dir`);
+        $output->write($command . "\n");
+        shell_exec($command);
 
         return 0;
     }

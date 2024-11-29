@@ -20,7 +20,7 @@ class InitCommand extends Command
     protected $wp_tests_dir;
     protected $templates_dir;
     protected $vendor_path;
-    protected $wp_core_path;
+    protected $path_wp_tests;
     protected $tests_include_path;
 
     public function __construct(string $name = null)
@@ -147,9 +147,12 @@ EOF
         if (!$this->Util->isWPCoreRequired()) {
             $packages[] = $this->Util::WP_CORE_PACKAGE;
         }
-        $output->write(`composer config extra.wordpress-install-dir $wp_core_path`);
+        $command = "composer config extra.wordpress-install-dir $wp_core_path";
+        $output->write($command . "\n");
+        shell_exec($command);
         $command = sprintf('composer require %s --dev', implode(' ', $packages));
-        $output->write(`$command`);
+        $output->write($command . "\n");
+        shell_exec($command);
         return 0;
     }
 

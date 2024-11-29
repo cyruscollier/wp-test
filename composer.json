@@ -14,9 +14,10 @@
     "license": "MIT",
     "require": {
         "wp-phpunit/wp-phpunit": "^6.7",
-        "phpunit/phpunit": "^11.4.4",
+        "phpunit/phpunit": "^9.6.21",
         "symfony/console": "^7.2|^6.4|^5.4",
-        "symfony/yaml": "^7.2|^6.4|^5.4"
+        "symfony/yaml": "^7.2|^6.4|^5.4",
+        "yoast/phpunit-polyfills": "^3.0"
     },
     "autoload": {
         "psr-4": {

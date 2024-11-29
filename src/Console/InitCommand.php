@@ -2,6 +2,7 @@
 
 namespace WPTest\Console;
 
+use SebastianBergmann\Template\Template;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -57,7 +58,7 @@ EOF
      *
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln($this->project_dir);
         $default_namespace = $this->Util->getPSR4Namespace();
@@ -160,7 +161,7 @@ EOF
     protected function generateFile(string $name, OutputInterface $output, array $vars = [])
     {
         $template_file = $this->templates_dir . DIRECTORY_SEPARATOR . basename($name) . '.tpl';
-        $template = new \Text_Template($template_file);
+        $template = new Template($template_file);
         $template_vars = get_object_vars($this);
         unset($template_vars['Util']);
         $template->setVar(array_merge($template_vars, $vars));

@@ -33,7 +33,7 @@ EOF
      *
      * @return mixed
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $Util = new Util();
         $project_dir = $Util->getProjectDirectory();

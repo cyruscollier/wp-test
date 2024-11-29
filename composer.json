@@ -2,7 +2,7 @@
     "name": "cyruscollier/wp-test",
     "description": "A framework for running unit and integration tests on WordPress",
     "keywords": ["wordpress", "test-driven development", "phpspec", "phpunit"],
-    "homepage": "http://github.com/cyruscollier/wp-spark",
+    "homepage": "http://github.com/cyruscollier/wp-test",
     "type": "library",
     "authors": [
         {
@@ -12,22 +12,19 @@
         }
     ],
     "license": "MIT",
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://packages.cyruscollier.com/"
-        }
-    ],
     "require": {
-        "wp-phpunit/wp-phpunit": "^5.5",
-        "phpunit/phpunit": "^7.5.18",
-        "symfony/console": "^5.1|^4.4",
-        "symfony/yaml": "^5.1|^4.4"
+        "wp-phpunit/wp-phpunit": "^6.7",
+        "phpunit/phpunit": "^11.4.4",
+        "symfony/console": "^7.2|^6.4|^5.4",
+        "symfony/yaml": "^7.2|^6.4|^5.4"
     },
     "autoload": {
         "psr-4": {
             "WPTest\\": "src/"
         }
     },
-    "bin": ["bin/wp-test"]
+    "bin": ["bin/wp-test"],
+    "extra": {
+        "wordpress-install-dir": "wordpress"
+    }
 }

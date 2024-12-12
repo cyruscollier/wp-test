@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace WPTest\Test;
 
@@ -6,7 +6,7 @@ use PHPUnit\Framework\Constraint\Constraint;
 
 class HasFilterConstraint extends Constraint
 {
-    
+
     /**
      * @var callable
      */
@@ -20,7 +20,6 @@ class HasFilterConstraint extends Constraint
      */
     public function __construct($call, $method_name = null)
     {
-        parent::__construct();
         if (empty($call)) {
             throw new \PHPUnit_Framework_Exception( 'Not hook provided for filter assertion' );
         }
@@ -46,7 +45,7 @@ class HasFilterConstraint extends Constraint
         $filter = is_array($this->callable) ?
             sprintf('%s::%s', get_class( $this->callable[0]), $this->callable[1] ) :
             $this->callable;
-        return $this->exporter->export($filter);
+        return $this->exporter()->export($filter);
     }
 
     /**

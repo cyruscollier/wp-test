@@ -29,15 +29,4 @@
         <const name="WP_TESTS_ADDITIONAL_PLUGINS" value="" />
         <const name="WP_TESTS_CONFIG_FILE_PATH" value="wp-tests-config.php" />
     </php>
-    <listeners>
-        <listener class="SpeedTrapListener" file="{tests_include_path}/listener-loader.php">
-            <arguments>
-                <array>
-                    <element key="slowThreshold">
-                        <integer>150</integer>
-                    </element>
-                </array>
-            </arguments>
-        </listener>
-    </listeners>
 </phpunit>

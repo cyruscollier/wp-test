@@ -41,7 +41,9 @@ class PHPUnitBootstrap extends TestRunnerBootstrap
             $this->afterPluginsLoaded([$this, 'installSelectedPlugins'], 99);
         }
         if (defined('WP_TESTS_ACTIVATE_THEME') && WP_TESTS_ACTIVATE_THEME) {
-            $this->options['stylesheet'] = $this->options['template'] = WP_TESTS_ACTIVATE_THEME;
+            $this->options['stylesheet'] = WP_TESTS_ACTIVATE_THEME;
+            $this->options['template'] = defined('WP_TESTS_PARENT_THEME') ? WP_TESTS_PARENT_THEME : WP_TESTS_ACTIVATE_THEME;
+
             $this->afterPluginsLoaded([$this, 'setActiveTheme']);
         }
         $this->requireTestsIncludes('bootstrap.php');

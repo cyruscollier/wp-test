@@ -17,9 +17,8 @@ class DidActionConstraint extends Constraint
      *
      * @param int $count
      */
-    public function __construct($count = 1)
+    public function __construct(int $count = 1)
     {
-        parent::__construct();
         $this->count = $count;
     }
 
@@ -40,7 +39,7 @@ class DidActionConstraint extends Constraint
      */
     public function toString(): string
     {
-        $output = $this->exporter->export($this->count) . ' time';
+        $output = $this->exporter()->export($this->count) . ' time';
         if ($this->count > 1) {
             $output .= 's';
         }

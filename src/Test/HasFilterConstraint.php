@@ -16,9 +16,9 @@ class HasFilterConstraint extends Constraint
      * HasFilterConstraint constructor.
      *
      * @param string|callable $call
-     * @param string $method_name
+     * @param string|null $method_name
      */
-    public function __construct($call, $method_name = null)
+    public function __construct($call, string $method_name = null)
     {
         if (empty($call)) {
             throw new \PHPUnit_Framework_Exception( 'Not hook provided for filter assertion' );
